@@ -50,41 +50,43 @@
 #### 系统 CentOS 6 或者 7
 
 #### 下载 Python
-···https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz···
+```https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz```
+
 
 #### 放到服务器上面编译安装
-···yum -y install zlib-devel bzip2-devel wget openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gcc make
+```yum -y install zlib-devel bzip2-devel wget openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gcc make
 cd /usr/local/src
 xz -d Python-3.6.2.tar.xz
 tar -xf Python-3.6.2.tar
 cd Python-3.6.2
 ./configure --prefix=/usr/local/python-36 --enable-shared CFLAGS=-fPIC
-make && make install···
+make && make install```
+
 
 #### 添加环境变量
-echo 'export PATH=$PATH:/usr/local/python-36/bin' >> /etc/profile
-source /etc/profile
+```echo 'export PATH=$PATH:/usr/local/python-36/bin' >> /etc/profile
+source /etc/profile```
+
 
 #### 替换旧版本
-mv /usr/bin/python /tmp
-ln -s /usr/local/python-36/bin/python3.6 /usr/bin/python
+```mv /usr/bin/python /tmp
+ln -s /usr/local/python-36/bin/python3.6 /usr/bin/python```
 
 #### 修改 yum
-vim /usr/bin/yum
+```vim /usr/bin/yum```
 
 #### 把第一行用的 Python 换成本机 /usr/bin 下面 python2.* （CentOS 6 和 7 带的 Python 版本不同）
 
 #### 修改库文件
-cp /usr/local/python-36/lib/libpython3.6m.so.1.0 /usr/lib64/
+```cp /usr/local/python-36/lib/libpython3.6m.so.1.0 /usr/lib64/```
 
 #### 查看当前版本
-python -V
-
+```python -V```
 
 #### 服务配置
 
 #### 新建目录，上传 opms 到该目录下
-mkdir -p /opt/opms_website
+```mkdir -p /opt/opms_website```
 
 #### 修改 /opt/opms_website/opms/opms/settings.py 中的个人配置
 
@@ -106,23 +108,23 @@ b.CITY_ID：默认的城市 ID，在内网访问的时候提供城市天气支�
 
 
 #### 安装依赖
-cd /opt/opms_website/opms
-pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+```cd /opt/opms_website/opms
+pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple```
 
 #### 同步数据库
-python manage.py makemigrations
-python manage.py migrate
+```python manage.py makemigrations
+python manage.py migrate```
 
 #### 创建超级用户，根据提示创建
-python manage.py createsuperuser
+```python manage.py createsuperuser```
 
 
 #### 安装环境
-pip3 install uwsgi
+```pip3 install uwsgi```
 
 #### 创建文件，添加配置：/etc/uwsgi.ini
 
-[uwsgi]
+```[uwsgi]
 //运行端口号
 socket = 127.0.0.1:9090
 //主进程
@@ -141,12 +143,12 @@ limit-as = 512
 buffer-sizi = 30000
 //pid文件，用于下面的脚本启动、停止该进程
 pidfile = /var/run/uwsgi.pid
-daemonize = /var/log/uwsgi.log
+daemonize = /var/log/uwsgi.log```
 
 
 #### 创建启动脚本:/etc/init.d/uwsgi
 
-#!/bin/bash
+```#!/bin/bash
 
 NAME='uwsgi'
 DAEMON='uwsgi'
@@ -194,11 +196,11 @@ reload|graceful)
     exit 3
 ;;
 esac
-exit 0
+exit 0```
 
 
 #### 创建 nginx 虚拟主机
-server {
+```server {
     # 设置网站运行端口
     listen       10000;
     server_name  localhost;
@@ -219,19 +221,19 @@ server {
         alias  /opt/opms_website/opms/static/;
         index  index.html index.htm;
     }
-}
+}```
 
 
 #### 启动服务
-/etc/init.d/uwsgi start
+```/etc/init.d/uwsgi start```
 
 #### 启动 nginx
 
 #### 启动 main.py
-python /opt/opms_website/opms/extra_apps/webssh/main.py & >/dev/null
+```python /opt/opms_website/opms/extra_apps/webssh/main.py & >/dev/null```
 
 #### 用之前创建的用户登录后台
-http://xxxx:10000/admin
+```http://xxxx:10000/admin```
 
 #### 初始化
 1.找到公司表，添加公司
