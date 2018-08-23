@@ -49,12 +49,12 @@
 
 ### 环境安装
 
-# 系统 CentOS 6 或者 7
+#### 系统 CentOS 6 或者 7
 
-# 下载 Python
+#### 下载 Python
 https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz
 
-# 放到服务器上面编译安装
+#### 放到服务器上面编译安装
 yum -y install zlib-devel bzip2-devel wget openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gcc make
 cd /usr/local/src
 xz -d Python-3.6.2.tar.xz
@@ -63,66 +63,67 @@ cd Python-3.6.2
 ./configure --prefix=/usr/local/python-36 --enable-shared CFLAGS=-fPIC
 make && make install
 
-# 添加环境变量
+#### 添加环境变量
 echo 'export PATH=$PATH:/usr/local/python-36/bin' >> /etc/profile
 source /etc/profile
 
-# 替换旧版本
+#### 替换旧版本
 mv /usr/bin/python /tmp
 ln -s /usr/local/python-36/bin/python3.6 /usr/bin/python
 
-# 修改 yum
+#### 修改 yum
 vim /usr/bin/yum
 
-# 把第一行用的 Python 换成本机 /usr/bin 下面 python2.* （CentOS 6 和 7 带的 Python 版本不同）
+#### 把第一行用的 Python 换成本机 /usr/bin 下面 python2.* （CentOS 6 和 7 带的 Python 版本不同）
 
-# 修改库文件
+#### 修改库文件
 cp /usr/local/python-36/lib/libpython3.6m.so.1.0 /usr/lib64/
 
-# 查看当前版本
+#### 查看当前版本
 python -V
 
 
-##### 服务配置
+#### 服务配置
 
-# 新建目录，上传 opms 到该目录下
+#### 新建目录，上传 opms 到该目录下
 mkdir -p /opt/opms_website
 
-# 修改 /opt/opms_website/opms/opms/settings.py 中的个人配置
+#### 修改 /opt/opms_website/opms/opms/settings.py 中的个人配置
 
-# 1.数据库配置
+#### 1.数据库配置
 
-# 2.系统发送邮件邮箱配置，需要一个开启 SMTP 的邮箱地址
+#### 2.系统发送邮件邮箱配置，需要一个开启 SMTP 的邮箱地址
 
-# 3.系统地址配置：
-#   a.SERVER_URL：系统运行之后的访问地址
-#   b.WEBSSH_IP：远程终端的服务地址，这里其实是本机的 IP地址
-#   c.WEBSSH_PORT：不需要修改，如果真的要改，需要修改 extra_apps/webssh/main.py 中的端口，改为一致
+#### 3.系统地址配置：
+a.SERVER_URL：系统运行之后的访问地址
+b.WEBSSH_IP：远程终端的服务地址，这里其实是本机的 IP地址
+c.WEBSSH_PORT：不需要修改，如果真的要改，需要修改 extra_apps/webssh/main.py 中的端口，改为一致
 
  
-# 4.高德地图和城市：
-#   a.GAODE_API_KEY：需要去高德地址开发者中心创建一个 KEY，很容易，这里用于首页的天气功能
-#   b.CITY_ID：默认的城市 ID，在内网访问的时候提供城市天气支持
+#### 4.高德地图和城市：
+a.GAODE_API_KEY：需要去高德地址开发者中心创建一个 KEY，很容易，这里用于首页的天气功能
+b.CITY_ID：默认的城市 ID，在内网访问的时候提供城市天气支持
 
 # 5.开发者邮箱 DEVELPER_EMAIL_ADDRESS，默认为我得，首页反馈功能发送的消息最终发送给谁
 
 
-##### 安装依赖
+#### 安装依赖
 cd /opt/opms_website/opms
 pip3 install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
 
-# 同步数据库
+#### 同步数据库
 python manage.py makemigrations
 python manage.py migrate
 
-# 创建超级用户，根据提示创建
+#### 创建超级用户，根据提示创建
 python manage.py createsuperuser
 
 
-##### 安装环境
+#### 安装环境
 pip3 install uwsgi
 
-# 创建文件，添加配置：/etc/uwsgi.ini
+#### 创建文件，添加配置：/etc/uwsgi.ini
+
 [uwsgi]
 //运行端口号
 socket = 127.0.0.1:9090
@@ -145,7 +146,8 @@ pidfile = /var/run/uwsgi.pid
 daemonize = /var/log/uwsgi.log
 
 
-# 创建启动脚本:/etc/init.d/uwsgi
+#### 创建启动脚本:/etc/init.d/uwsgi
+
 #!/bin/bash
 
 NAME='uwsgi'
@@ -196,7 +198,8 @@ reload|graceful)
 esac
 exit 0
 
-# 创建 nginx 虚拟主机
+
+#### 创建 nginx 虚拟主机
 server {
     # 设置网站运行端口
     listen       10000;
@@ -221,29 +224,29 @@ server {
 }
 
 
-# 启动服务
+#### 启动服务
 /etc/init.d/uwsgi start
 
-# 启动 nginx
+#### 启动 nginx
 
-# 启动 main.py
+#### 启动 main.py
 python /opt/opms_website/opms/extra_apps/webssh/main.py & >/dev/null
 
-# 用之前创建的用户登录后台
+#### 用之前创建的用户登录后台
 http://xxxx:10000/admin
 
-# 初始化
+#### 初始化
 1.找到公司表，添加公司
 2.然后部门表添加部门
 3.然后职位表，添加职位
 4.最后找到用户表，完善当前用户的一些用户信息
 
-# 初始化平台
+#### 初始化平台
 找到平台表，添加你们公司用到的一些平台，如 zabbix，jenkins 等，logo 路径为 opms/media/platform-management/logo 下面
 添加时候，如 zabbix logo 只需要写 platform-management/logo/zabbix.png 即可
 
 
-# 服务正常使用
+#### 服务正常使用
 http://xxxx:10000
 
 
