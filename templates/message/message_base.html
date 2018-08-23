@@ -1,0 +1,234 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load message_tags %}
+{% load user_tags %}
+
+{% block base_header_css %}
+    <style>
+        .panel {
+            margin-bottom: 0px;
+        }
+    </style>
+{% endblock base_header_css %}
+
+{% block base_content %}
+    <div class="app-content">
+        <div class="app-content-body fade-in-up">
+            <div class="padder" style="padding-top: 10px;">
+
+                <!-- 左边导航栏 -->
+                <div class="col-sm-2" style="padding-left: 0; padding-right: 10px;">
+                    <div class="panel" style="font-size: 14px;">
+                        <div>
+                            <a class="btn btn-block bg-black" style="background-color: #009688; color: white;"
+                               data-toggle="modal"
+                               data-target="#WriteMessageModal">写消息</a>
+                        </div>
+
+                        <div class="list-group">
+                            <a href="{% url 'message:message_list' 'message_list' %}" class="list-group-item"
+                               {% ifequal web_chose_middle 'message_list' %}style="background-color: #1c2b36; color: white;"{% endifequal %}>
+                                {% ifnotequal request.user.id|Get_UnreadMsg_Nums 0 %}
+                                    <span class="badge bg-danger pull-right">{{ request.user.id|Get_UnreadMsg_Nums }}</span>
+                                {% endifnotequal %}
+                                <i class="fa fa-inbox"></i>&nbsp;&nbsp;&nbsp;&nbsp;收件箱
+                            </a>
+                        </div>
+
+                        <div class="list-group">
+                            <a href="{% url 'message:message_list' 'send_list' %}" class="list-group-item"
+                               {% ifequal web_chose_middle 'send_list' %}style="background-color: #1c2b36; color: white;"{% endifequal %}>
+                                <i class="fa fa-send-o"></i>&nbsp;&nbsp;&nbsp;&nbsp;发件箱
+                            </a>
+                        </div>
+
+                        <div class="list-group">
+                            <a href="{% url 'message:message_list' 'unread_list' %}" class="list-group-item"
+                               {% ifequal web_chose_middle 'unread_list' %}style="background-color: #1c2b36; color: white;"{% endifequal %}>
+                                <i class="fa fa-envelope-o"></i>&nbsp;&nbsp;&nbsp;&nbsp;未读消息
+                            </a>
+                        </div>
+
+                        <div class="list-group">
+                            <a href="{% url 'message:message_list' 'notify_list' %}" class="list-group-item"
+                               {% ifequal web_chose_middle 'notify_list' %}style="background-color: #1c2b36; color: white;"{% endifequal %}>
+                                <i class="fa fa-bell-o"></i>&nbsp;&nbsp;&nbsp;&nbsp;通知消息
+                            </a>
+                        </div>
+
+                        <div class="list-group">
+                            <a href="{% url 'message:message_list' 'star_list' %}" class="list-group-item"
+                               {% ifequal web_chose_middle 'star_list' %}style="background-color: #1c2b36; color: white;"{% endifequal %}>
+                                <i class="fa fa-star-o"></i>&nbsp;&nbsp;&nbsp;&nbsp;星标消息
+                            </a>
+                        </div>
+
+                        <div class="list-group">
+                            <a class="list-group-item">
+                                <i class="fa fa-calendar"></i>&nbsp;&nbsp;&nbsp;&nbsp;消息归档 <span
+                                    style="color: orangered;">[ 最新半年 ]</span>
+                            </a>
+
+                            {% Get_Latest_Year as ym_list %}
+                            {% for each in ym_list %}
+                                <div class="list-group" style="margin-bottom: 0;">
+                                    {% Get_YM_Str each.0 each.1 as ym_str %}
+                                    <a href="{% url 'message:message_list' 'message_list' %}?&year={{ each.0 }}&month={{ each.1 }}" class="list-group-item"
+                                        {% if web_chose_middle == ym_str %}style="padding-left: 40px;background-color: #1c2b36; color: white;"{% else %}style="padding-left: 40px; background-color: #DEDEDE;"{% endif %}>
+                                        {{ each.0 }} 年 {{ each.1 }} 月
+                                        <span class="pull-right">( {% Get_Archives_Nums request.user.id each.0 each.1 %} )</span>
+                                    </a>
+                                </div>
+                            {% endfor %}
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右边消息列表 -->
+                {% block message_content %}
+                {% endblock message_content %}
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 写消息 -->
+    <div class="modal inmodal" id="WriteMessageModal" tabindex="-1" role="dialog" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-dialog" style="width: 760px; padding-top: 5%;">
+            <div class="modal-content">
+
+                <div class="modal-header" style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="icon-close" style="font-size: 18px;"></i>
+                    </button>
+                    <h4 class="modal-title">发送消息</h4>
+                </div>
+
+                <form method="post" id="id_WriteMessageForm">
+                    <div class="modal-body">
+
+                        <div class="form-group">
+                            <div>
+                                <input type="text" name="subject" class="form-control"
+                                       placeholder="请输入消息主题（注意，如果不选择收信人将发送给所有人！）"
+                                       maxlength="255">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div>
+                                {% Get_All_Users as users %}
+                                <select class="selectpicker form-control" multiple data-live-search="true"
+                                        style="display: none;" name="rec_users">
+                                    {% for each_user in users %}
+                                        {% if each_user.id != request.user.id %}
+                                            <option value="{{ each_user.id }}">{{ each_user.chinese_name }}</option>
+                                        {% endif %}
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- 消息主体 -->
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <div class="w-full">
+                                <div id="msg_content"><p>在此处输入消息内容!</p></div>
+                            </div>
+                            <script>
+                                $(document).ready(function () {
+                                    $('#msg_content').summernote({
+                                        height: 250,
+                                        lang: 'zh-CN',
+                                        placeholder: 'write here...',
+                                        focus: true,
+                                        toolbar: [
+                                            ['undo', ['undo']],
+                                            ['style', ['style']],
+                                            ['fontname', ['fontname']],
+                                            ['style', ['bold', 'italic', 'underline']],
+                                            ['fontsize', ['fontsize']],
+                                            ['color', ['color']],
+                                            ['para', ['ul', 'ol', 'paragraph']],
+                                            ['table', ['table']],
+                                            ['link', ['link']],
+                                            ['picture', ['picture']],
+                                            ['codeview', ['codeview']],
+                                        ],
+
+                                        callbacks: {
+                                            onImageUpload: function (files) {
+                                                //上传图片到服务器
+                                                var formData = new FormData();
+                                                formData.append('file', files[0]);
+                                                $.ajax({
+                                                    url: '{% url 'message:message_img_upload' %}',//后台文件上传接口
+                                                    type: 'POST',
+                                                    data: formData,
+                                                    processData: false,
+                                                    contentType: false,
+                                                    beforeSend: function (xhr, settings) {
+                                                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                                                    },
+                                                    success: function (data) {
+                                                        console.log(data)
+                                                        $('#msg_content').summernote('insertImage', data.img_url);
+                                                    }
+                                                });
+                                            }
+                                        }
+                                    })
+                                });
+                            </script>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="modal-footer" style="padding-top: 10px; padding-bottom: 10px;">
+                    <a class="btn btn-sm btn-default" data-dismiss="modal">取消</a>
+                    <a class="btn btn-sm btn-default" id="id_WriteMessageBtn">发送消息</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_WriteMessageBtn').on('click', function () {
+                var user_msg = $("#msg_content").summernote('code').replace(/;/g, '%%%%%');
+                console.log(user_msg);
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'message:message_send' %}",
+                    data: $('#id_WriteMessageForm').serialize() + '&user_msg=' + user_msg,
+                    async: true,
+                    dataType: 'json',
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            $('.selectpicker').selectpicker({
+                'selectedText': 'cat'
+            });
+        });
+    </script>
+{% endblock base_content %}
+
+

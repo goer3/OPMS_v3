@@ -1,0 +1,316 @@
+{% extends 'users/user_base.html' %}
+{% load staticfiles %}
+
+
+{% block base_title %}
+    用户信息
+{% endblock base_title %}
+
+
+{% block user_base_body %}
+    <!-- 右边消息列表 -->
+    <div class="col-sm-10" style="padding-left: 0; padding-right: 0;">
+        <div class="panel panel-default" id="body-content">
+
+            <div class="panel-body">
+                <div style="background-color: #1c2b36;height: 29vh">
+                    <div class="wrapper-lg">
+                        <div style="text-align: center;">
+                            <a>
+                                <img src="{{ MEDIA_URL }}{{ request.user.avatar }}" class="img-circle" style="width: 128px; height: 128px;">
+                            </a>
+                        </div>
+
+                        <div style="text-align: center;padding-top: 30px;">
+                            <p style="font-size: 20px;font-weight: bolder;color: #fff;">{{ request.user.position.department.name }}
+                                - {{ request.user.position.name }} - {{ request.user.chinese_name }}</p>
+                            <p style="font-size: 20px;font-weight: bolder;color: #fff;">JOIN DAYS
+                                - {{ request.user.get_join_days }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="height: 56vh">
+                    <div class="wrapper-lg" style="padding-left: 0; padding-right: 0;padding-top: 0;">
+                        <div class="row" style="text-align: center;">
+                            <div class="col-sm-8" style="padding-top: 15px;">
+
+                                <table class="table table-bordered" style="font-size: 14px;color: #000">
+                                    <tbody>
+                                    <tr style="background-color: #1c2b36;font-size: 16px; font-weight: bolder;color: white;">
+                                        <td colspan="4">基本信息</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">姓名</td>
+                                        <td style="width: 30%">
+                                            {{ request.user.chinese_name }}{% if request.user.english_name %} [
+                                                {{ request.user.english_name }} ] {% endif %}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">用户名</td>
+                                        <td style="width: 30%">{{ request.user.username }} <span
+                                                style="color: orangered;">[ {{ request.user.get_role_display }} ]</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">公司</td>
+                                        <td style="width: 30%">{{ request.user.position.department.company.name }}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">地址</td>
+                                        <td style="width: 30%">
+                                            {% if request.user.address %}{{ request.user.address }}{% else %}
+                                                暂无{% endif %}</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">部门</td>
+                                        <td style="width: 30%">{{ request.user.position.name }}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">职位</td>
+                                        <td style="width: 30%">{{ request.user.position.department.name }}</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">性别</td>
+                                        <td style="width: 30%">{{ request.user.get_gender_display }}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">生日</td>
+                                        <td style="width: 30%">
+                                            {% if request.user.birthday %}{{ request.user.birthday }}{% else %}
+                                                暂无{% endif %}</td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+
+                                <table class="table table-bordered" style="font-size: 14px;color: #000">
+                                    <tbody>
+                                    <tr style="background-color: #1c2b36;font-size: 16px; font-weight: bolder;color: white;">
+                                        <td colspan="4">联系方式</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">电话</td>
+                                        <td style="width: 30%">{{ request.user.mobile }}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">QQ</td>
+                                        <td style="width: 30%">
+                                            {% if request.user.qq %}{{ request.user.qq }}{% else %}暂无{% endif %}</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">微信</td>
+                                        <td style="width: 30%">
+                                            {% if request.user.wechat %}{{ request.user.wechat }}{% else %}
+                                                暂无{% endif %}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">邮箱</td>
+                                        <td style="width: 30%">{{ request.user.email }}</td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+
+                                <table class="table table-bordered" style="font-size: 14px;color: #000">
+                                    <tbody>
+                                    <tr style="background-color: #1c2b36;font-size: 16px; font-weight: bolder;color: white;">
+                                        <td colspan="4">账户信息</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">账号状态</td>
+                                        <td style="width: 30%">{% if request.user.is_active %}激活{% else %}
+                                            <span style="color: orangered;">未激活</span>{% endif %}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">开通日期</td>
+                                        <td style="width: 30%">{{ request.user.date_joined }}</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">最后一次登录</td>
+                                        <td style="width: 30%">{{ request.user.last_login }}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">停用日期</td>
+                                        <td style="width: 30%">暂无</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">其它</td>
+                                        <td colspan="3">暂无</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="col-sm-4" style="padding-top: 15px;padding-left: 0;">
+
+                                <table class="table table-bordered" style="font-size: 14px;color: #000">
+                                    <tbody>
+                                    <tr style="background-color: #1c2b36;font-size: 16px; font-weight: bolder;color: white;">
+                                        <td>其他说明</td>
+                                    </tr>
+                                    <tr class="gradeX odd" style="height: 40vh;" role="row">
+                                        <td class="text-left">
+                                            {% if request.user.desc %}{{ request.user.desc }}{% else %}暂无{% endif %}</td>
+                                    </tr>
+                                </table>
+
+                                <div class="list-group">
+                                    <a href="#" class="list-group-item"
+                                       style="background-color: #009688;; color: white;"
+                                       data-toggle="modal"
+                                       data-target="#EditUserInfoModal">
+                                        修改个人信息
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock user_base_body %}
+
+
+{% block base_footer_html %}
+    <!-- 修改个人资料 -->
+    <div class="modal inmodal" id="EditUserInfoModal" tabindex="-1" role="dialog" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-dialog" style="width: 450px;">
+            <div class="modal-content" style="margin-top: 100px;">
+
+                <div class="modal-header" style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="icon-close" style="font-size: 18px;"></i>
+                    </button>
+                    <h4 class="modal-title">修改资料</h4>
+                </div>
+
+                <form method="post" id="id_UserChangeInfoForm">
+                    <div class="modal-body" style="height: 420px;">
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">英文名：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="英文名"
+                                       maxlength="255" name="english_name"
+                                       {% if request.user.english_name %}value="{{ request.user.english_name }}"{% endif %}>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">手机号：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="手机号"
+                                       maxlength="255" name="mobile"
+                                       {% if request.user.mobile %}value="{{ request.user.mobile }}"{% endif %}>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">微信号：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="微信号"
+                                       maxlength="255" name="wechat"
+                                       {% if request.user.wechat %}value="{{ request.user.wechat }}"{% endif %}>
+                            </div>
+                        </div>
+
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">QQ：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="QQ"
+                                       maxlength="255" name="qq"
+                                       {% if request.user.qq %}value="{{ request.user.qq }}"{% endif %}>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">办公地址：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="办公地址"
+                                       maxlength="255" name="address"
+                                       {% if request.user.address %}value="{{ request.user.address }}"{% endif %}>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">生日：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <div class="input-group date" id='birthday_date'>
+                                    <span class="input-group-addon">
+                                        <i class="fa fa-calendar"></i>
+                                    </span>
+                                    <input type="text" name="birthday" class="form-control"
+                                           {% if request.user.birthday %}value="{{ request.user.birthday }}"{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">个人简介：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <textarea type="text" class="form-control" rows="5" name="desc" placeholder="个人简介" maxlength="255">{% if request.user.desc %}{{ request.user.desc }}{% endif %}</textarea>
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+                <div class="modal-footer" style="padding-top: 10px; padding-bottom: 10px;">
+                    <a class="btn btn-sm btn-default" data-dismiss="modal">取消</a>
+                    <a class="btn btn-sm btn-default" id="id_UserChangeInfoBtn">保存修改</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改用户资料 -->
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_UserChangeInfoBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'users:change_user_info' %}",
+                    data: $('#id_UserChangeInfoForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.alert(data.msg);
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+{% endblock base_footer_html %}
+
+
+{% block base_footer_css %}
+    <link href="{% static 'plugins/bootstrap_date/bootstrap-datetimepicker.min.css' %}" rel="stylesheet">
+{% endblock base_footer_css %}
+
+
+{% block base_footer_js %}
+    <script src="{% static 'plugins/bootstrap_date/moment-with-locales.min.js' %}"></script>
+    <script src="{% static 'plugins/bootstrap_date/bootstrap-datetimepicker.min.js' %}"></script>
+
+    <!-- 生日日期选择 -->
+    <script>
+        $(function () {
+            $('#birthday_date').datetimepicker({
+                format: 'YYYY-MM-DD',
+                locale: moment.locale('zh-cn')
+            });
+        });
+    </script>
+{% endblock base_footer_js %}

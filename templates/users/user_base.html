@@ -1,0 +1,49 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+
+{% block base_content %}
+    <div class="app-content">
+        <div class="app-content-body fade-in-up">
+            <div class="padder" style="padding-top: 10px;">
+
+                <!-- 左边导航栏 -->
+                <div class="col-sm-2" style="padding-left: 0; padding-right: 10px;">
+                    <div class="panel" style="font-size: 14px;">
+                        <div class="list-group">
+                            <a href="{% url 'users:user_info' %}" class="list-group-item"
+                               {% ifequal web_chose_middle 'user_info' %}style="background-color: #1c2b36; color: white;"{% endifequal %}>
+                                <i class="fa fa-credit-card"></i>&nbsp;&nbsp;&nbsp;&nbsp;个人资料
+                            </a>
+                        </div>
+
+                        <div class="list-group">
+                            <a href="{% url 'users:user_password' %}" class="list-group-item"
+                               {% ifequal web_chose_middle 'user_password' %}style="background-color: #1c2b36; color: white;"{% endifequal %}>
+                                <i class="fa fa-key"></i>&nbsp;&nbsp;&nbsp;&nbsp;修改密码
+                            </a>
+                        </div>
+
+                        <div class="list-group">
+                            <a href="{% url 'users:user_email' %}" class="list-group-item"
+                               {% ifequal web_chose_middle 'user_email' %}style="background-color: #1c2b36; color: white;"{% endifequal %}>
+                                <i class="fa fa-envelope-o"></i>&nbsp;&nbsp;&nbsp;&nbsp;修改邮箱
+                            </a>
+                        </div>
+
+                        <div class="list-group">
+                            <a href="{% url 'users:user_avatar' %}" class="list-group-item"
+                               {% ifequal web_chose_middle 'user_avatar' %}style="background-color: #1c2b36; color: white;"{% endifequal %}>
+                                <i class="fa fa-meh-o"></i>&nbsp;&nbsp;&nbsp;&nbsp;修改头像
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右边主体 -->
+                {% block user_base_body %}
+                {% endblock user_base_body %}
+            </div>
+        </div>
+    </div>
+{% endblock base_content %}

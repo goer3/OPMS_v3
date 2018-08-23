@@ -1,0 +1,1 @@
+default_app_config= 'host_management.apps.HostManagementConfig'

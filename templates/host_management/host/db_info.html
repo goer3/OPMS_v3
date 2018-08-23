@@ -1,0 +1,803 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+
+{% block base_title %}
+    数据库详情
+{% endblock base_title %}
+
+
+{% block base_header_css %}
+    <!-- 弹框详情css -->
+    <style>
+        .popover-title {
+            color: #1c2b36;
+            font-weight: bolder;
+        }
+
+        .popover {
+            background-color: #1c2b36;
+            color: white;
+        }
+    </style>
+
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap_date/bootstrap-select.css' %}" type="text/css">
+
+{% endblock base_header_css %}
+
+
+{% block base_header_js %}
+    <script src="{% static 'plugins/bootstrap_date/bootstrap-select.js' %}"></script>
+
+    <!-- 下拉选择框 -->
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            $('.selectpicker').selectpicker({
+                'selectedText': 'cat',
+            });
+        })
+    </script>
+{% endblock base_header_js %}
+
+
+{% block base_content %}
+    <div class="app-content">
+        <div class="app-content-body fade-in-up">
+            <div class="padder" style="padding-top: 10px;">
+
+                <div class="col-md-12" style="padding-left: 0; padding-right: 0;">
+                    <div class="panel panel-default" id="body-content">
+                        <div class="panel-heading" style="background-color: #1c2b36;">
+                            <div style="display: block; border-left: 5px solid #fff; padding-left: 10px; font-size: 20px; font-weight: bolder; line-height: 25px;color: #fff;">
+                                数据库详情
+                            </div>
+                        </div>
+
+                        <div class="panel-body">
+
+                            <div style="margin-bottom: 10px;">
+                                <a href="{% url 'host_management:db_list' %}" class="btn btn-sm btn-default"><i
+                                        class="fa fa-reply"></i> 返回列表</a>
+                                <a href="{% url 'host_management:host_info' db_records.host.id %}"
+                                   class="btn btn-sm btn-default"><i
+                                        class="fa fa-desktop"></i> 查看主机</a>
+                                <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#AddDatabaseDBModal"><i
+                                        class="fa fa-plus"></i> 新建库</a>
+                                <a class="btn btn-sm btn-default" data-toggle="modal"
+                                   data-target="#AddDatabaseUserModal"><i
+                                        class="fa fa-plus"></i> 新建用户</a>
+                            </div>
+
+                            <div id="hostinfo-content" style="overflow-y: auto;overflow-x: hidden;">
+                                <div>
+                                    <table class="table table-bordered" style="font-size: 14px;color: #000">
+                                        <tbody>
+
+                                        <tr style="background-color: #1c2b36;font-size: 14px; font-weight: bolder;color: white;">
+                                            <td colspan="8">基本信息</td>
+                                        </tr>
+
+                                        <tr class="gradeX odd" role="row">
+                                            <td class="font-bold text-right" style="width: 10%;">内网IP</td>
+                                            <td class="text-center" style="width: 15%;">{{ db_records.host.in_ip }}</td>
+                                            <td class="font-bold text-right" style="width: 10%;">公网IP</td>
+                                            <td class="text-center" style="width: 15%;">
+                                                {% if db_records.host.out_ip %}{{ db_records.host.out_ip }}{% else %}
+                                                    暂无{% endif %}</td>
+                                            <td class="font-bold text-right" style="width: 10%;">操作系统</td>
+                                            <td class="text-center"
+                                                style="width: 15%;">{{ db_records.host.system.name }} {{ db_records.host.system.version }}
+                                                ( {{ db_records.host.system.get_bit_display }} )
+                                            </td>
+                                            <td class="font-bold text-right" style="width: 10%;">环境</td>
+                                            <td class="text-center"
+                                                style="width: 15%;">{{ db_records.host.op_env.name }}
+                                                [{{ db_records.host.idc.name }}]
+                                            </td>
+                                        </tr>
+
+                                        <tr class="gradeX odd" role="row">
+                                            <td class="font-bold text-right">数据库</td>
+                                            <td class="text-center">{{ db_records.db_name }}L</td>
+                                            <td class="font-bold text-right">版本</td>
+                                            <td class="text-center">{{ db_records.db_version }}</td>
+                                            <td class="font-bold text-right">管理员用户</td>
+                                            <td class="text-center">{{ db_records.db_admin_user }}</td>
+                                            <td class="font-bold text-right">管理员密码</td>
+                                            <td class="text-center">{{ db_records.db_admin_pass }}</td>
+                                        </tr>
+
+                                        <tr class="gradeX odd" role="row">
+                                            <td class="font-bold text-right">添加人</td>
+                                            <td class="text-center">{{ db_records.add_user.chinese_name }}</td>
+                                            <td class="font-bold text-right">添加时间</td>
+                                            <td class="text-center">{{ db_records.add_time }}</td>
+                                            <td class="font-bold text-right">更新日期</td>
+                                            <td class="text-center">{{ db_records.update_time }}</td>
+                                            <td class="font-bold text-right">更新人</td>
+                                            <td class="text-center">{{ db_records.update_user.chinese_name }}</td>
+                                        </tr>
+
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div>
+                                    <table class="table table-bordered" style="font-size: 14px;color: #000">
+                                        <tbody>
+
+                                        <tr style="background-color: #1c2b36;font-size: 14px; font-weight: bolder;color: white;">
+                                            <td colspan="9">用户信息</td>
+                                        </tr>
+
+                                        <tr class="gradeX odd" role="row">
+                                            <td class="font-bold text-center">用户名</td>
+                                            <td class="font-bold text-center">密码</td>
+                                            <td class="font-bold text-center">登录授权</td>
+                                            <td class="font-bold text-center">添加人</td>
+                                            <td class="font-bold text-center">添加时间</td>
+                                            <td class="font-bold text-center">修改人</td>
+                                            <td class="font-bold text-center">修改时间</td>
+                                            <td class="font-bold text-center">授权库</td>
+                                            <td class="font-bold text-center" style="width: 10%">操作</td>
+                                        </tr>
+
+                                        {% if db_user_records %}
+                                            {% for each_db_user_record in db_user_records %}
+                                                <tr class="gradeX odd" role="row">
+                                                    <td class="text-center">{{ each_db_user_record.username }}</td>
+                                                    <td class="text-center">{{ each_db_user_record.password }}</td>
+                                                    <td class="text-center">{{ each_db_user_record.grant_login }}</td>
+                                                    <td class="text-center">{{ each_db_user_record.add_user.chinese_name }}</td>
+                                                    <td class="text-center">{{ each_db_user_record.add_time }}</td>
+                                                    <td class="text-center">{{ each_db_user_record.update_user.chinese_name }}</td>
+                                                    <td class="text-center">{{ each_db_user_record.update_time }}</td>
+                                                    <td class="text-center">
+                                                        {% for each_grant in each_db_user_record.grant_db.all %}
+                                                            {{ each_grant.name }} /
+                                                        {% endfor %}
+                                                    </td>
+                                                    <td class="text-center" style="vertical-align:middle;">
+                                                        <a data-toggle="modal"
+                                                           data-target="#EditDatabaseUserModal{{ each_db_user_record.id }}"
+                                                           class="btn btn-xs"
+                                                           style="background-color: #009688;color: white;">
+                                                            编辑
+                                                        </a>
+
+                                                        <a data-toggle="modal"
+                                                           data-target="#DeleteDatabaseUserModal{{ each_db_user_record.id }}"
+                                                           class="btn btn-xs"
+                                                           style="background-color: #f05050;color: white;">
+                                                            删除
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr class="gradeX odd" role="row">
+                                                <td class="text-center" colspan="20">暂无记录</td>
+                                            </tr>
+                                        {% endif %}
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <div>
+                                    <table class="table table-bordered" style="font-size: 14px;color: #000">
+                                        <tbody>
+
+                                        <tr style="background-color: #1c2b36;font-size: 14px; font-weight: bolder;color: white;">
+                                            <td colspan="8">库信息</td>
+                                        </tr>
+
+                                        <tr class="gradeX odd" role="row">
+                                            <td class="font-bold text-center">库名</td>
+                                            <td class="font-bold text-center">用途</td>
+                                            <td class="font-bold text-center">添加人</td>
+                                            <td class="font-bold text-center">添加时间</td>
+                                            <td class="font-bold text-center">修改人</td>
+                                            <td class="font-bold text-center">修改时间</td>
+                                            <td class="font-bold text-center">备注</td>
+                                            <td class="font-bold text-center" style="width: 10%">操作</td>
+                                        </tr>
+
+                                        {% if db_db_records %}
+                                            {% for each_db_db_record in db_db_records %}
+                                                <tr class="gradeX odd" role="row">
+                                                    <td class="text-center">{{ each_db_db_record.name }}</td>
+                                                    <td class="text-center">{{ each_db_db_record.use }}</td>
+                                                    <td class="text-center">{{ each_db_db_record.add_user.chinese_name }}</td>
+                                                    <td class="text-center">{{ each_db_db_record.add_time }}</td>
+                                                    <td class="text-center">{{ each_db_db_record.update_user.chinese_name }}</td>
+                                                    <td class="text-center">{{ each_db_db_record.update_time }}</td>
+                                                    <td class="text-center">
+                                                        {% if each_db_db_record.desc %}
+                                                            {{ each_db_db_record.desc }}{% else %}
+                                                            暂无{% endif %}</td>
+                                                    <td class="text-center" style="vertical-align:middle;">
+                                                        <button class="btn btn-xs" data-toggle="modal"
+                                                                data-target="#EditDatabaseDBModal{{ each_db_db_record.id }}"
+                                                                style="background-color: #009688;color: white;">
+                                                            编辑
+                                                        </button>
+                                                        <button class="btn btn-xs" data-toggle="modal"
+                                                                data-target="#DeleteDatabaseDBModal{{ each_db_db_record.id }}"
+                                                                style="background-color: #f05050;color: white;">
+                                                            删除
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <tr class="gradeX odd" role="row">
+                                                <td class="text-center" colspan="20">暂无记录</td>
+                                            </tr>
+                                        {% endif %}
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock base_content %}
+
+
+{% block base_footer_html %}
+    <!-- 添加库 -->
+    <div class="modal inmodal" id="AddDatabaseDBModal" tabindex="-1" role="dialog" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-dialog" style="width: 450px;">
+            <div class="modal-content" style="margin-top: 100px;">
+
+                <div class="modal-header"
+                     style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="icon-close" style="font-size: 18px;"></i>
+                    </button>
+                    <h4 class="modal-title">新建库</h4>
+                </div>
+
+                <form method="post" id="id_AddDataBaseDBForm">
+                    <div class="modal-body" style="height: 150px;">
+
+                        <input type="hidden" name="db_id" value="{{ db_records.id }}">
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">库名：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="库名"
+                                       maxlength="20" name="name" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">用途：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="用途"
+                                       maxlength="20" name="use" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">备注：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="备注（没有可以不填）"
+                                       maxlength="200" name="desc" required="">
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+                <div class="modal-footer" style="padding-right: 15px;padding-top: 10px; padding-bottom: 10px;">
+                    <a class="btn btn-sm btn-default" data-dismiss="modal">取消</a>
+                    <a class="btn btn-sm btn-default" id="id_AddDatabaseDBBtn">添加</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加用户 -->
+    <div class="modal inmodal" id="AddDatabaseUserModal" tabindex="-1" role="dialog" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-dialog" style="width: 450px;">
+            <div class="modal-content" style="margin-top: 100px;">
+
+                <div class="modal-header"
+                     style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="icon-close" style="font-size: 18px;"></i>
+                    </button>
+                    <h4 class="modal-title">新建用户</h4>
+                </div>
+
+                <form method="post" id="id_AddDataBaseUserForm">
+                    <div class="modal-body" style="height: 245px;">
+
+                        <input type="hidden" name="db_id" value="{{ db_records.id }}">
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">授权库：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <select name="dbs" class="selectpicker form-control" multiple=""
+                                        data-live-search="true"
+                                        style="display: none;">
+                                    {% for each_db_db_record in db_db_records %}
+                                        <option value="{{ each_db_db_record.id }}">{{ each_db_db_record.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">用户名：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="用户名"
+                                       maxlength="20" name="username" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">密码：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="密码"
+                                       maxlength="50" name="password" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">授权登录：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="授权登录，默认 locahost，多个使用逗号隔开"
+                                       maxlength="50" name="grant_login" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">备注：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="备注（没有可以不填）" maxlength="200"
+                                       name="desc">
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+                <div class="modal-footer" style="padding-right: 15px;padding-top: 10px; padding-bottom: 10px;">
+                    <a class="btn btn-sm btn-default" data-dismiss="modal">取消</a>
+                    <a class="btn btn-sm btn-default" id="id_AddDatabaseUserBtn">添加</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 修改 -->
+    {% for each_db_db_record in db_db_records %}
+        <!-- 修改库 -->
+        <div class="modal inmodal" id="EditDatabaseDBModal{{ each_db_db_record.id }}" tabindex="-1" role="dialog"
+             aria-hidden="true"
+             data-backdrop="static">
+            <div class="modal-dialog" style="width: 450px;">
+                <div class="modal-content" style="margin-top: 100px;">
+
+                    <div class="modal-header"
+                         style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <i class="icon-close" style="font-size: 18px;"></i>
+                        </button>
+                        <h4 class="modal-title">修改库</h4>
+                    </div>
+
+                    <form method="post" id="id_EditDataBaseDBForm{{ each_db_db_record.id }}">
+                        <div class="modal-body" style="height: 150px;">
+
+                            <input type="hidden" name="db_id" value="{{ each_db_db_record.id }}">
+                            <input type="hidden" name="db_db_id" value="{{ each_db_db_record.db_id }}">
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">库名：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="库名"
+                                           maxlength="20" name="name" required="" value="{{ each_db_db_record.name }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">用途：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="用途"
+                                           maxlength="20" name="use" required="" value="{{ each_db_db_record.use }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">备注：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="备注（没有可以不填）"
+                                           maxlength="200" name="desc" required="" {% if each_db_db_record.desc %}
+                                           value="{{ each_db_db_record.desc }}"{% endif %}>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+
+                    <div class="modal-footer" style="padding-right: 15px;padding-top: 10px; padding-bottom: 10px;">
+                        <a class="btn btn-sm btn-default" data-dismiss="modal">取消</a>
+                        <a class="btn btn-sm btn-default" id="id_EditDatabaseDBBtn{{ each_db_db_record.id }}">修改</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(function () {
+                // 提交表单
+                $('#id_EditDatabaseDBBtn{{ each_db_db_record.id }}').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'host_management:edit_db_db' %}",
+                        data: $('#id_EditDataBaseDBForm{{ each_db_db_record.id }}').serialize(),
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status == 'success') {
+                                window.location.reload();
+                            } else if (data.status == 'failed') {
+                                window.alert(data.msg);
+                            }
+                        }
+                    });
+                });
+            })
+        </script>
+
+        <!-- 停用库 -->
+        <div class="modal inmodal" id="DeleteDatabaseDBModal{{ each_db_db_record.id }}" tabindex="-1" role="dialog"
+             aria-hidden="true"
+             data-backdrop="static">
+            <div class="modal-dialog modal-sm" style="padding-top: 10%;">
+                <div class="modal-content">
+
+                    <div class="modal-header"
+                         style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <i class="icon-close" style="font-size: 18px;"></i>
+                        </button>
+                        <h4 class="modal-title">警告！</h4>
+                    </div>
+
+                    <form method="post" id="id_DeleteDatabaseDBForm{{ each_db_db_record.id }}">
+                        <input type="hidden" name="db_id" value="{{ each_db_db_record.id }}">
+                        <div class="modal-body">
+                            <span style="font-size: 16px;color: black;">是否确定删除该服务？</span>
+                        </div>
+                    </form>
+
+                    <div class="modal-footer" style="padding: 10px;padding-top: 10px; padding-bottom: 10px;">
+                        <a class="btn btn-default" data-dismiss="modal" style="padding: 2px 10px;">取消</a>
+                        <a class="btn btn-default" id="id_DeleteDatabaseDBBtn{{ each_db_db_record.id }}"
+                           style="padding: 2px 10px;">确定</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 停用库 -->
+        <script>
+            $(function () {
+                // 提交表单
+                $('#id_DeleteDatabaseDBBtn{{ each_db_db_record.id }}').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'host_management:del_db_db' %}",
+                        data: $('#id_DeleteDatabaseDBForm{{ each_db_db_record.id }}').serialize(),
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status == 'success') {
+                                window.location.reload();
+                            } else if (data.status == 'failed') {
+                                window.alert(data.msg);
+                            }
+                        }
+                    });
+                });
+            })
+        </script>
+    {% endfor %}
+
+    {% for each_db_user_record in db_user_records %}
+        <!-- 编辑用户 -->
+        <div class="modal inmodal" id="EditDatabaseUserModal{{ each_db_user_record.id }}" tabindex="-1" role="dialog"
+             aria-hidden="true"
+             data-backdrop="static">
+            <div class="modal-dialog" style="width: 450px;">
+                <div class="modal-content" style="margin-top: 100px;">
+
+                    <div class="modal-header"
+                         style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <i class="icon-close" style="font-size: 18px;"></i>
+                        </button>
+                        <h4 class="modal-title">修改用户</h4>
+                    </div>
+
+                    <form method="post" id="id_EditDataBaseUserForm{{ each_db_user_record.id }}">
+                        <div class="modal-body" style="height: 245px;">
+
+                            <input type="hidden" name="db_user_id" value="{{ each_db_user_record.id }}">
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">授权库：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <select name="dbs" class="selectpicker form-control" multiple=""
+                                            data-live-search="true"
+                                            style="display: none;">
+                                        {% for each_db_db_record in db_db_records %}
+                                            <option value="{{ each_db_db_record.id }}"
+                                                    {% if each_db_db_record.id in each_db_user_record.get_grant_list %}
+                                                    selected
+                                                    {% endif %}>{{ each_db_db_record.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">用户名：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="用户名"
+                                           maxlength="20" name="username" required=""
+                                           value="{{ each_db_user_record.username }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">密码：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="密码"
+                                           maxlength="20" name="password" required=""
+                                           value="{{ each_db_user_record.password }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">授权登录：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="授权登录，默认 locahost，多个使用逗号隔开"
+                                           maxlength="50" name="grant_login" required=""
+                                           value="{{ each_db_user_record.grant_login }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">备注：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="备注（没有可以不填）"
+                                           maxlength="200" name="desc" {% if each_db_user_record.desc %}
+                                           value="{{ each_db_user_record.username }}"{% endif %}>
+                                </div>
+                            </div>
+
+                        </div>
+                    </form>
+
+                    <div class="modal-footer" style="padding-right: 15px;padding-top: 10px; padding-bottom: 10px;">
+                        <a class="btn btn-sm btn-default" data-dismiss="modal">取消</a>
+                        <a class="btn btn-sm btn-default" id="id_EditDatabaseUserBtn{{ each_db_user_record.id }}">修改</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(function () {
+                // 提交表单
+                $('#id_EditDatabaseUserBtn{{ each_db_user_record.id }}').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'host_management:edit_db_user' %}",
+                        data: $('#id_EditDataBaseUserForm{{ each_db_user_record.id }}').serialize(),
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status == 'success') {
+                                window.location.reload();
+                            } else if (data.status == 'failed') {
+                                window.alert(data.msg);
+                            }
+                        }
+                    });
+                });
+            })
+        </script>
+
+        <!-- 停用用户 -->
+        <div class="modal inmodal" id="DeleteDatabaseUserModal{{ each_db_user_record.id }}" tabindex="-1" role="dialog"
+             aria-hidden="true"
+             data-backdrop="static">
+            <div class="modal-dialog modal-sm" style="padding-top: 10%;">
+                <div class="modal-content">
+
+                    <div class="modal-header"
+                         style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <i class="icon-close" style="font-size: 18px;"></i>
+                        </button>
+                        <h4 class="modal-title">警告！</h4>
+                    </div>
+
+                    <form method="post" id="id_DeleteDatabaseUserForm{{ each_db_user_record.id }}">
+                        <input type="hidden" name="db_user_id" value="{{ each_db_user_record.id }}">
+                        <div class="modal-body">
+                            <span style="font-size: 16px;color: black;">是否确定删除该用户？</span>
+                        </div>
+                    </form>
+
+                    <div class="modal-footer" style="padding: 10px;padding-top: 10px; padding-bottom: 10px;">
+                        <a class="btn btn-default" data-dismiss="modal" style="padding: 2px 10px;">取消</a>
+                        <a class="btn btn-default" id="id_DeleteDatabaseUserBtn{{ each_db_user_record.id }}"
+                           style="padding: 2px 10px;">确定</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 删除用户 -->
+        <script>
+            $(function () {
+                // 提交表单
+                $('#id_DeleteDatabaseUserBtn{{ each_db_user_record.id }}').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'host_management:del_db_user' %}",
+                        data: $('#id_DeleteDatabaseUserForm{{ each_db_user_record.id }}').serialize(),
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status == 'success') {
+                                window.location.reload();
+                            } else if (data.status == 'failed') {
+                                window.alert(data.msg);
+                            }
+                        }
+                    });
+                });
+            })
+        </script>
+    {% endfor %}
+{% endblock base_footer_html %}
+
+
+{% block base_footer_js %}
+    <!-- 添加库 -->
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_AddDatabaseDBBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'host_management:add_db_db' %}",
+                    data: $('#id_AddDataBaseDBForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+
+    <!-- 添加用户 -->
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_AddDatabaseUserBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'host_management:add_db_user' %}",
+                    data: $('#id_AddDataBaseUserForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+{% endblock base_footer_js %}

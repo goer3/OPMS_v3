@@ -1,0 +1,153 @@
+{% extends 'users/user_base.html' %}
+{% load staticfiles %}
+
+
+{% block base_title %}
+    用户信息
+{% endblock base_title %}
+
+
+{% block user_base_body %}
+    <!-- 右边主体 -->
+    <div class="col-sm-10" style="padding-left: 0; padding-right: 0;">
+        <div class="panel panel-default" id="body-content">
+
+            <div class="panel-heading">
+                <div style="display: block; border-left: 5px solid #1c2b36; padding-left: 10px; font-size: 20px; font-weight: bolder; line-height: 25px;color: #1c2b36;">
+                    修改密码
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 15%;">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div style="padding-left: 10%;padding-right: 10%;">
+                        <p class="m-t"></p>
+
+                        <p style="margin-bottom: 0; font-size: 15px;">
+                            请输入一个既能被你记住，同时又有复杂度的密码！
+                        </p>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form class="m-t" role="form" action="{% url 'users:change_user_password' %}" method="post">
+                                    {% csrf_token %}
+                                    <p style="color: red;">{{ msg }}</p>
+                                    <div class="form-group">
+                                        <input name="cur_password" class="form-control" type="password" placeholder="当前密码"
+                                               required="">
+                                    </div>
+                                    <div class="form-group">
+                                        <input name="new_password" class="form-control" type="password" placeholder="新密码"
+                                               required="" onKeyUp=pwStrength(this.value)
+                                               onBlur=pwStrength(this.value)>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <table border="1"
+                                               style="border: lightgrey; height: 5px; width: 100%">
+                                            <tr>
+                                                <td id="strength_L"></td>
+                                                <td id="strength_M"></td>
+                                                <td id="strength_H"></td>
+                                            </tr>
+                                        </table>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <input name="renew_password" type="password" class="form-control" placeholder="重复密码"
+                                               required="">
+                                    </div>
+                                    <button type="submit" class="btn btn-black block full-width m-b"
+                                            style="color: white">修改密码
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                        <p class="m-t"></p>
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+        </div>
+    </div>
+{% endblock user_base_body %}
+
+
+{% block base_footer_js %}
+    <script language=javascript>
+        // 判断输入密码的类型
+        function CharMode(iN) {
+            //数字
+            if (iN >= 48 && iN <= 57)
+                return 1;
+            //大写
+            if (iN >= 65 && iN <= 90)
+                return 2;
+            //小写
+            if (iN >= 97 && iN <= 122)
+                return 4;
+            else
+                return 8;
+        }
+
+        // 计算密码模式
+        function bitTotal(num) {
+            modes = 0;
+            for (i = 0; i < 4; i++) {
+                if (num & 1) modes++;
+                num >>>= 1;
+            }
+            return modes;
+        }
+
+        // 返回强度级别
+        function checkStrong(sPW) {
+            // 密码太短，不检测级别
+            if (sPW.length < 6)
+                return 0;
+            Modes = 0;
+            for (i = 0; i < sPW.length; i++) {
+                // 密码模式
+                Modes |= CharMode(sPW.charCodeAt(i));
+            }
+            return bitTotal(Modes);
+        }
+
+        // 显示颜色
+        function pwStrength(pwd) {
+            // 默认颜色
+            Dfault_color = "white";
+            // 低强度的颜色，且只显示在最左边的单元格中
+            L_color = "red";
+            // 中等强度的颜色，且只显示在左边两个单元格中
+            M_color = "yellow";
+            // 高强度的颜色，三个单元格都显示
+            H_color = "green";
+            if (pwd == null || pwd == '') {
+                Lcolor = Mcolor = Hcolor = Dfault_color;
+            }
+            else {
+                S_level = checkStrong(pwd);
+                switch (S_level) {
+                    case 0:
+                        Lcolor = Mcolor = Hcolor = Dfault_color;
+                        break;
+                    case 1:
+                        Lcolor = L_color;
+                        Mcolor = Hcolor = Dfault_color;
+                        break;
+                    case 2:
+                        Lcolor = Mcolor = M_color;
+                        Hcolor = Dfault_color;
+                        break;
+                    default:
+                        Lcolor = Mcolor = Hcolor = H_color;
+                }
+            }
+            document.getElementById("strength_L").style.background = Lcolor;
+            document.getElementById("strength_M").style.background = Mcolor;
+            document.getElementById("strength_H").style.background = Hcolor;
+        }
+    </script>
+{% endblock base_footer_js %}

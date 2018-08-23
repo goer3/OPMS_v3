@@ -1,0 +1,508 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load user_tags %}
+{% load message_tags %}
+{% load host_tags %}
+{% load op_record_tags %}
+{% load doc_tags %}
+{% load online_tags %}
+
+{% block base_title %}
+    Dashboard
+{% endblock base_title %}
+
+
+{% block base_header_css %}
+    <link rel="stylesheet" href="{% static 'css/weather.css' %}">
+    <script src="{% static 'js/Chart.min.js' %}"></script>
+{% endblock base_header_css %}
+
+
+{% block base_content %}
+    <!-- 右边主体 -->
+    <div class="app-content">
+        <div class="app-content-body fade-in-up">
+            <div class="padder" style="padding-top: 10px;">
+
+                <div class="col-md-12" style="padding-left: 0; padding-right: 0;">
+                    <div class="panel panel-default" id="body-content">
+                        <div class="panel-body" id="table_content">
+
+                            <div class="row">
+
+                                <div class="col-md-9" style="padding-right: 5px;">
+
+                                    <div class="col-md-2" style="padding-left: 0; padding-right: 5px;">
+                                        <div class="panel panel-default" style="margin-bottom: 0;">
+                                            <div class="text-center">
+                                                <div class="panel-body"
+                                                     style="background-color: #fff; height: 114px;line-height: 114px; vertical-align: middle;">
+                                                    <a href="{% url 'message:message_list' 'message_list' %}"><i
+                                                            class="fa fa-envelope-o"
+                                                            style="font-size: 60px;color: #1c2b36;"></i>
+                                                    </a>
+                                                </div>
+                                                <div class="panel-footer">
+                                                    <b style="margin-top: 10px; line-height: 27px;font-size: 18px;">消息数量：{{ request.user.id|Get_Message_Nums }}</b>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2" style="padding-left: 0; padding-right: 5px;">
+                                        <div class="panel panel-default" style="margin-bottom: 0;">
+                                            <div class="text-center">
+                                                <div class="panel-body"
+                                                     style="background-color: #fff; height: 114px;line-height: 114px; vertical-align: middle;">
+                                                    <a href="{% url 'users:user_list' %}"><i class="fa fa-user"
+                                                                                             style="font-size: 60px;color: #1c2b36;"></i></a>
+                                                </div>
+                                                <div class="panel-footer">
+                                                    <b style="margin-top: 10px; line-height: 27px;font-size: 18px;">用户数量：{% Get_Users_Nums %}</b>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2" style="padding-left: 0; padding-right: 5px;">
+                                        <div class="panel panel-default" style="margin-bottom: 0;">
+                                            <div class="text-center">
+                                                <div class="panel-body"
+                                                     style="background-color: #fff; height: 114px;line-height: 114px; vertical-align: middle;">
+                                                    <a href="{% url 'document_management:doc_list' 'document' %}" class="fa fa-file-text-o"
+                                                       style="font-size: 60px;color: #1c2b36;"></a>
+                                                </div>
+                                                <div class="panel-footer">
+                                                    <b style="margin-top: 10px; line-height: 27px;font-size: 18px;">文档数量：{% Get_Doc_Nums %}</b>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2" style="padding-left: 0; padding-right: 5px;">
+                                        <div class="panel panel-default" style="margin-bottom: 0;">
+                                            <div class="text-center">
+                                                <div class="panel-body"
+                                                     style="background-color: #fff; height: 114px;line-height: 114px; vertical-align: middle;">
+                                                    <a href="{% url 'online_management:tr_list' %}" class="fa fa-cog"
+                                                       style="font-size: 60px;color: #1c2b36;"></a>
+                                                </div>
+                                                <div class="panel-footer">
+                                                    <b style="margin-top: 10px; line-height: 27px;font-size: 18px;">故障数量：{% Get_Trouble_Nums %}</b>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="col-md-2" style="padding-left: 0; padding-right: 5px;">
+                                        <div class="panel panel-default" style="margin-bottom: 0;">
+                                            <div class="text-center">
+                                                <div class="panel-body"
+                                                     style="background-color: #fff; height: 114px;line-height: 114px; vertical-align: middle;">
+                                                    <a href="{% url 'host_management:host_list' %}"><i
+                                                            class="fa fa-hdd-o"
+                                                            style="font-size: 60px;color: #1c2b36;"></i></a>
+                                                </div>
+                                                <div class="panel-footer">
+                                                    <b style="margin-top: 10px; line-height: 27px;font-size: 18px;">主机数量：{% Get_Host_Nums %}</b>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- 天气显示 -->
+                                    {% ifequal weather 'rain' %}
+                                        <!-- 下雨 -->
+                                        <div class="col-md-2" style="padding-left: 0; padding-right: 5px;">
+                                            <div class="panel panel-default" style="margin-bottom: 0;">
+                                                <div class="text-center">
+                                                    <div class="panel-body" style="background-color: #fff;color:#fff">
+                                                        <div class="icon rainy" style="height: 80px;">
+                                                            <div class="cloud"></div>
+                                                            <div class="rain"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="panel-footer">
+                                                        <b style="margin-top: 10px; line-height: 27px;font-size: 18px;">温度：{{ temperature }}°</b>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endifequal %}
+
+                                    {% ifequal weather 'thunder' %}
+                                        <div class="col-md-2" style="padding-left: 0; padding-right: 5px;">
+                                            <div class="panel panel-default" style="margin-bottom: 0;">
+                                                <div class="text-center">
+                                                    <div class="panel-body" style="background-color: #fff;color:#fff">
+                                                        <div class="icon thunder-storm" style="height: 80px;">
+                                                            <div class="cloud"></div>
+                                                            <div class="lightning">
+                                                                <div class="bolt"></div>
+                                                                <div class="bolt"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="panel-footer">
+                                                        <b style="margin-top: 10px; line-height: 27px;font-size: 18px;">温度：{{ temperature }}°</b>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endifequal %}
+
+                                    {% ifequal weather 'cloud' %}
+                                        <div class="col-md-2" style="padding-left: 0; padding-right: 5px;">
+                                            <div class="panel panel-default" style="margin-bottom: 0;">
+                                                <div class="text-center">
+                                                    <div class="panel-body" style="background-color: #fff;color:#fff">
+                                                        <div class="icon cloudy" style="height: 80px;">
+                                                            <div class="cloud"></div>
+                                                            <div class="cloud"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="panel-footer">
+                                                        <b style="margin-top: 10px; line-height: 27px;font-size: 18px;">温度：{{ temperature }}°</b>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endifequal %}
+
+                                    {% ifequal weather 'snow' %}
+                                        <div class="col-md-2" style="padding-left: 0; padding-right: 5px;">
+                                            <div class="panel panel-default" style="margin-bottom: 0;">
+                                                <div class="text-center">
+                                                    <div class="panel-body" style="background-color: #fff;color:#fff">
+                                                        <div class="icon flurries" style="height: 80px;">
+                                                            <div class="cloud"></div>
+                                                            <div class="snow">
+                                                                <div class="flake"></div>
+                                                                <div class="flake"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="panel-footer">
+                                                        <b style="margin-top: 10px; line-height: 27px;font-size: 18px;">温度：{{ temperature }}°</b>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endifequal %}
+
+                                    {% ifequal weather 'sun' %}
+                                        <div class="col-md-2" style="padding-left: 0; padding-right: 5px;">
+                                            <div class="panel panel-default" style="margin-bottom: 0;">
+                                                <div class="text-center">
+                                                    <div class="panel-body" style="background-color: #fff;color:#fff">
+                                                        <div class="icon sunny" style="height: 80px;">
+                                                            <div class="sun">
+                                                                <div class="rays"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="panel-footer">
+                                                        <b style="margin-top: 10px; line-height: 27px;font-size: 18px;">温度：{{ temperature }}°</b>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endifequal %}
+
+                                    {% ifequal weather 'unknow' %}
+                                        <div class="col-md-2" style="padding-left: 0; padding-right: 5px;">
+                                            <div class="panel panel-default" style="margin-bottom: 0;">
+                                                <div class="text-center">
+                                                    <div class="panel-body" style="background-color: #fff;color:#fff">
+                                                        <div class="icon sunny" style="height: 80px;">
+                                                            <div class="sun">
+                                                                <div class="rays"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="panel-footer">
+                                                        <b style="margin-top: 10px; line-height: 27px;font-size: 18px;">温度：{{ temperature }}°</b>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endifequal %}
+
+                                    <div class="col-md-8" style="padding-left: 0; padding-right: 0;">
+
+                                        <div style="padding-left: 0; padding-right: 5px; padding-top: 5px;">
+                                            <div class="panel panel-default" style="margin-bottom: 0;"
+                                                 id="chart_content">
+                                                <div class="panel-heading pos-rlt"
+                                                     style="background-color: #fff;color: #1c2b36;">
+                                                    <span>故障趋势<a href="{% url 'online_management:tr_list' %}"
+                                                                        class="pull-right"
+                                                                        style="color: #1c2b36;">查看更多 &gt;&gt;</a></span>
+                                                </div>
+
+                                                <div class="panel-body">
+                                                    <canvas id="canvas_tr" height="95"></canvas>
+
+                                                    <script>
+                                                        var ctx = document.getElementById("canvas_tr").getContext("2d");
+
+                                                        // x 轴显示
+                                                        var label_x = {{ ym_list|safe }}
+
+                                                        // 传入数据
+                                                        var data = {{ tr_list|safe }}
+
+                                                        // 传入数据的最大值，用于 y 轴切分
+                                                        var maxNum = Math.max.apply(Math, data);
+                                                        var a = maxNum % 5;
+                                                        var maxY = maxNum + (5 - a)
+                                                        var stepSize = maxY / 5;
+
+                                                        var myChart = new Chart(ctx, {
+                                                            type: 'line', // line 表示是 曲线图，当然也可以设置其他的图表类型 如柱形图 : bar  或者其他
+                                                            data: {
+                                                                labels: label_x, //按时间段 可以按星期，按月，按年
+                                                                datasets: [
+                                                                    {
+                                                                        //label: '一年故障记录',  //当前数据的说明
+                                                                        fill: true,  //是否要显示数据部分阴影面积块  false:不显示
+                                                                        borderColor: "red",
+                                                                        pointBackgroundColor: "white", //数据点的颜色
+                                                                        data: data,  //填充的数据
+                                                                    },
+                                                                ]
+                                                            },
+
+                                                            options: {
+                                                                legend: {
+                                                                    display: false,
+                                                                },
+                                                                scales: {
+                                                                    yAxes: [{
+                                                                        ticks: {
+                                                                            max: maxY,
+                                                                            stepSize: stepSize,
+                                                                            beginAtZero: true,
+                                                                        },
+                                                                    }],
+                                                                }
+                                                            }
+                                                        });
+
+                                                    </script>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div style="padding-left: 0; padding-right: 5px; padding-top: 5px;">
+                                            <div class="panel panel-default" style="margin-bottom: 0;"
+                                                 id="chart_content">
+                                                <div class="panel-heading pos-rlt"
+                                                     style="background-color: #fff;color: #1c2b36;">
+                                                    <span>发布趋势<a href="{% url 'online_management:dep_list' %}"
+                                                                        class="pull-right"
+                                                                        style="color: #1c2b36;">查看更多 &gt;&gt;</a></span>
+                                                </div>
+
+                                                <div class="panel-body">
+                                                    <canvas id="canvas_dep" height="95"></canvas>
+
+                                                    <script>
+                                                        var ctx = document.getElementById("canvas_dep").getContext("2d");
+
+                                                        // x 轴显示
+                                                        var label_x = {{ ym_list|safe }}
+
+                                                        // 传入数据
+                                                        var data = {{ dep_list|safe }}
+
+                                                        // 传入数据的最大值，用于 y 轴切分
+                                                        var maxNum = Math.max.apply(Math, data);
+                                                        var a = maxNum % 5;
+                                                        var maxY = maxNum + (5 - a)
+                                                        var stepSize = maxY / 5;
+
+                                                        var myChart = new Chart(ctx, {
+                                                            type: 'line', // line 表示是 曲线图，当然也可以设置其他的图表类型 如柱形图 : bar  或者其他
+                                                            data: {
+                                                                labels: label_x, //按时间段 可以按星期，按月，按年
+                                                                datasets: [
+                                                                    {
+                                                                        //label: '一年故障记录',  //当前数据的说明
+                                                                        fill: true,  //是否要显示数据部分阴影面积块  false:不显示
+                                                                        borderColor: "#003366",
+                                                                        pointBackgroundColor: "white", //数据点的颜色
+                                                                        data: data,  //填充的数据
+                                                                    },
+                                                                ]
+                                                            },
+
+                                                            options: {
+                                                                legend: {
+                                                                    display: false,
+                                                                },
+                                                                scales: {
+                                                                    yAxes: [{
+                                                                        ticks: {
+                                                                            max: maxY,
+                                                                            stepSize: stepSize,
+                                                                            beginAtZero: true,
+                                                                        },
+                                                                    }],
+                                                                }
+                                                            }
+                                                        });
+
+                                                    </script>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    <div class="col-md-4" style="padding-left: 0; padding-right: 0;">
+
+                                        <div style="padding-left: 0; padding-right: 5px; padding-top: 5px;">
+                                            <div class="panel panel-default" style="margin-bottom: 0;"
+                                                 id="more_content">
+                                                <div class="panel-heading pos-rlt"
+                                                     style="background-color: #fff;color: #1c2b36;">
+                                                    <span>最新文档</span><a
+                                                        href="{% url 'document_management:doc_list' 'document' %}"
+                                                        class="pull-right"
+                                                        style="color: #1c2b36;">查看更多 &gt;&gt;</a>
+                                                </div>
+
+                                                <div class="panel-body">
+                                                    <table class="full-width">
+                                                        {% Get_Latest_Doc as doc_list %}
+                                                        {% for each in doc_list %}
+                                                            <tr style="height: 28px;">
+                                                                <td width="60%">
+                                                                    <a href="{% url 'document_management:doc_detail' each.id %}"
+                                                                       style="color:#006699 ;">{{ each.subject|slice:"20" }}</a>
+                                                                </td>
+
+                                                                <td width="20%">{{ each.update_user.chinese_name }}</td>
+
+                                                                <td width="20%"
+                                                                    class="text-right">{{ each.update_time|date:"m-d H:i" }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </table>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div style="padding-left: 0; padding-right: 5px; padding-top: 5px;">
+                                            <div class="panel panel-default" style="margin-bottom: 0;"
+                                                 id="more_content">
+                                                <div class="panel-heading pos-rlt"
+                                                     style="background-color: #fff;color: #1c2b36;">
+                                                    <span>最新故障</span><a href="{% url 'online_management:tr_list' %}"
+                                                                        class="pull-right"
+                                                                        style="color: #1c2b36;">查看更多 &gt;&gt;</a>
+                                                </div>
+
+                                                <div class="panel-body">
+                                                    <table class="full-width">
+                                                        {% Get_Latest_Trouble as tr_list %}
+                                                        {% for each in tr_list %}
+                                                            <tr style="height: 28px;">
+                                                                <td width="60%">{{ each.name|slice:"20" }}</td>
+
+                                                                <td width="20%">{{ each.get_handle_result_display }}</td>
+
+                                                                <td width="20%"
+                                                                    class="text-right">{{ each.event_time|date:"m-d H:i" }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </table>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                        <div style="padding-left: 0; padding-right: 5px; padding-top: 5px;">
+                                            <div class="panel panel-default" style="margin-bottom: 0;"
+                                                 id="more_content">
+                                                <div class="panel-heading pos-rlt"
+                                                     style="background-color: #fff;color: #1c2b36;">
+                                                    <span>最新发布</span><a href="{% url 'online_management:dep_list' %}"
+                                                                        class="pull-right"
+                                                                        style="color: #1c2b36;">查看更多 &gt;&gt;</a>
+                                                </div>
+
+                                                <div class="panel-body">
+                                                    <table class="full-width">
+                                                        {% Get_Latest_Deploy as dep_list %}
+                                                        {% for each in dep_list %}
+                                                            <tr style="height: 28px;">
+                                                                <td width="60%">{{ each.name|slice:"20" }}
+                                                                </td>
+
+                                                                <td width="20%">{{ each.deploy_user.chinese_name }}</td>
+
+                                                                <td width="20%"
+                                                                    class="text-right">{{ each.deploy_time|date:"m-d H:i" }}</td>
+                                                            </tr>
+                                                        {% endfor %}
+                                                    </table>
+                                                </div>
+
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+
+                                </div>
+
+                                <div class="col-md-3" style="padding-left: 0;">
+                                    <div class="panel panel-default">
+
+                                        <div class="panel-heading pos-rlt text-center"
+                                             style="background-color: #fff;">
+                                            <span style="color: #1c2b36;">最新动态 <span style="color: orangered;"> [ 最新 25 条 ]</span></span>
+                                        </div>
+
+                                        <div class="panel-body" id="user_action_record" style="overflow-y: auto;">
+                                            <table class="full-width">
+                                                {% Cet_Latest_Record as op_records %}
+                                                {% for each in op_records %}
+                                                    <tr style="height: 30px;">
+                                                        <td width="23%" class="text-right"
+                                                            style="padding-right: 15px; border-right: 2px solid
+                                                                    {% ifequal each.operation 1 %} #00bc12 {% endifequal %}
+                                                                    {% ifequal each.operation 2 %} #177cb0 {% endifequal %}
+                                                                    {% ifequal each.operation 3 %} #fff143 {% endifequal %}
+                                                                    {% ifequal each.operation 4 %} #ff2d51 {% endifequal %}
+                                                                    {% ifequal each.operation 5 %} #1c2b36 {% endifequal %}
+                                                                    {% ifequal each.operation 6 %} #FF00CC {% endifequal %}">{{ each.add_time|date:"m-d H:i" }}</td>
+                                                        <td width="77%"
+                                                            style="padding-left: 15px;"><a
+                                                                href="{% url 'users:other_user_info' each.op_user.id %}"
+                                                                style="color:#006699 ;">{{ each.op_user.chinese_name }}</a>&nbsp;&nbsp;&nbsp;&nbsp;{{ each.action }}
+                                                        </td>
+                                                    </tr>
+                                                {% endfor %}
+
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock base_content %}

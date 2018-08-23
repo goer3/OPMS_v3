@@ -1,0 +1,72 @@
+{% extends 'users/login_base.html' %}
+{% load staticfiles %}
+
+
+{% block login_base_title %}
+    登录
+{% endblock login_base_title %}
+
+
+{% block login_base_body %}
+    <div id="login_board">
+        <div class="row" style="margin-top: 20%;">
+            <div class="col-md-3"></div>
+            <div class="col-md-6">
+                <div id="login_box">
+                    <p class="m-t"></p>
+                    <div>
+                        <i class="glyphicon glyphicon-send" style="font-size: x-large; color: #1c2b36;"></i>
+                        <span class="font-bold text-center"
+                              style="font-size: 28px; color: #1c2b36; padding-left: 10px;">登录</span>
+                    </div>
+                    <form class="m-t" role="form" method="post" action="{% url 'users:login' %}">
+                        {% csrf_token %}
+
+                        <p style="color: red;">{{ msg }}</p>
+
+                        <!-- 用户名或者邮箱 -->
+                        <div class="form-group">
+                            <input type="text" class="form-control" name="username" placeholder="用户名/邮箱" required="">
+                        </div>
+
+                        <!-- 密码 -->
+                        <div class="form-group">
+                            <input type="password" class="form-control" name="password" placeholder="密码" required="">
+                        </div>
+
+                        <!-- 验证码 -->
+                        <!--<div>-->
+                        <!--<div class="row">-->
+                        <!--<div class="col-sm-6">-->
+                        <!--<input autocomplete="off" id="id_captcha_1" class="form-control" name="captcha_1" placeholder="验证码" type="text">-->
+                        <!--</div>-->
+                        <!--</div>-->
+                        <!--<br>-->
+
+                        <!--&lt;!&ndash; 刷新验证码 &ndash;&gt;-->
+                        <!--<script>-->
+                        <!--function refresh_captcha() {-->
+                        <!--$.getJSON("/captcha/refresh/",-->
+                        <!--function (result) {-->
+                        <!--$('.captcha').attr('src', result['image_url']);-->
+                        <!--$('#id_captcha_0').val(result['key'])-->
+                        <!--})-->
+                        <!--}-->
+
+                        <!--$('.captcha').click(refresh_captcha)-->
+                        <!--</script>-->
+                        <!--</div>-->
+
+                        <!-- 登录按钮 -->
+                        <button type="submit" class="btn bg-black block full-width m-b" style="color: white">登录</button>
+
+                        <small>忘记密码? | <a href="{% url 'users:forget' %}" style="color: #003366;">现在找回</a></small>
+                    </form>
+                    <p class="m-t"></p>
+                </div>
+            </div>
+            <div class="col-md-3"></div>
+        </div>
+    </div>
+{% endblock login_base_body %}
+

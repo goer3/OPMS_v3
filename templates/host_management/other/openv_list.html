@@ -1,0 +1,421 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+
+{% block base_title %}
+    环境管理
+{% endblock base_title %}
+
+
+{% block base_header_css %}
+    <!-- 弹框详情css -->
+    <style>
+        .popover-title {
+            color: #1c2b36;
+            font-weight: bolder;
+        }
+
+        .popover {
+            background-color: #1c2b36;
+            color: white;
+        }
+    </style>
+
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap_date/bootstrap-select.css' %}" type="text/css">
+
+{% endblock base_header_css %}
+
+
+{% block base_header_js %}
+    <script src="{% static 'plugins/bootstrap_date/bootstrap-select.js' %}"></script>
+
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            $('.selectpicker').selectpicker({
+                'selectedText': 'cat',
+            });
+        })
+    </script>
+
+{% endblock base_header_js %}
+
+
+{% block base_content %}
+    <div class="app-content">
+        <div class="app-content-body fade-in-up">
+            <div class="padder" style="padding-top: 10px;">
+
+                <div class="col-md-12" style="padding-left: 0; padding-right: 0;">
+                    <div class="panel panel-default" id="body-content">
+
+                        <div class="panel-heading">
+                            <div style="display: block; border-left: 5px solid #1c2b36; padding-left: 10px; font-size: 20px; font-weight: bolder; line-height: 25px;color: #1c2b36;">
+                                环境列表{% ifnotequal keyword '' %}&nbsp;&nbsp;
+                                ："{{ keyword }}" 关键字搜索结果{% endifnotequal %}
+                            </div>
+                        </div>
+
+
+                        <div class="panel-body" id="table_content">
+
+                            <div class="selectBox">
+                                <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#AddOpEnvModal"><i
+                                        class="fa fa-plus"></i> 添加环境</a>
+
+
+                                <!-- 功能 -->
+                                <form class="navbar-form pull-right " role="search" style="margin-top: 0;">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input type="text" name="keyword"
+                                                   class="form-control input-sm bg-light no-border rounded "
+                                                   placeholder="关键词查找记录" style="width: 150px;">
+                                            <span class="input-group-btn">
+                                            <button type="submit" class="btn btn-sm bg-auto rounded">
+                                                <i class="fa fa-search"></i>
+                                            </button>
+                                        </span>
+                                        </div>
+                                    </div>
+                                </form>
+                                <span style="font-size: 14px; padding-top: 5px;" class="pull-right">共 <b
+                                        style="color: orangered">{{ openv_nums }}</b> 条</span>
+                            </div>
+
+
+                            <!-- 列表 -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <table class="table table-striped table-bordered">
+                                        <!-- 标题行 -->
+                                        <thead>
+                                        <tr role="row">
+                                            <th class="text-center" width="60">ID</th>
+                                            <th class="text-center">环境名称</th>
+                                            <th class="text-center">备注</th>
+                                            <th class="text-center">添加人</th>
+                                            <th class="text-center">添加时间</th>
+                                            <th class="text-center">更新人</th>
+                                            <th class="text-center">更新时间</th>
+                                            <th class="text-center">操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        {% if openvs.object_list %}
+                                            {% for each_openv in openvs.object_list %}
+                                                <tr class="gradeX odd" role="row">
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ forloop.counter }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_openv.name }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">
+                                                        {% if each_openv.desc %}{{ each_openv.desc }}{% else %}
+                                                            暂无{% endif %}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_openv.add_user.chinese_name }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_openv.add_time }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_openv.update_user.chinese_name }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_openv.update_time }}</td>
+                                                    <td class="text-center" style="vertical-align:middle;">
+                                                        <a class="btn btn-xs" data-toggle="modal"
+                                                           data-target="#EditOpEnvModal{{ each_openv.id }}"
+                                                           style="background-color: #009688;color: white;">
+                                                            编辑
+                                                        </a>
+                                                        <a class="btn btn-xs" data-toggle="modal"
+                                                           data-target="#DeleteOpEnvModal{{ each_openv.id }}"
+                                                           style="background-color: #f05050;color: white;">
+                                                            删除
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <td class="text-center" colspan="11" style="vertical-align:middle;">暂无记录
+                                            </td>
+                                        {% endif %}
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- 页码 -->
+                        <div class="panel-footer" style="padding-top: 0; padding-bottom: 0;">
+                            <div class="text-center">
+                                <ul class="pagination" style="margin-top: 10px; margin-bottom: 10px;">
+
+                                    <!-- 上一页 -->
+                                    {% if openvs.has_previous %}
+                                        <li><a href="?{{ openvs.previous_page_number.querystring }}">上一页<span
+                                                class="sr-only"></span></a></li>
+                                        <li><a href="?{{ openvs.previous_page_number.querystring }}">&laquo;<span
+                                                class="sr-only"></span></a></li>
+                                    {% endif %}
+
+                                    <!-- 页码 -->
+                                    {% for page in openvs.pages %}
+                                        {% if page %}
+                                            <!-- 当前页 -->
+                                            {% ifequal page openvs.number %}
+                                                <li class="active"><a href="?page={{ page }}">{{ page }}<span
+                                                        class="sr-only">(current)</span></a></li>
+                                                <!-- 其它页 -->
+                                            {% else %}
+                                                <li><a href="?page={{ page }}">{{ page }}<span
+                                                        class="sr-only"></span></a></li>
+                                            {% endifequal %}
+                                            <!-- 省略页 -->
+                                        {% else %}
+                                            <li><a href="">...<span class="sr-only"></span></a></li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    <!-- 下一页 -->
+                                    {% if openvs.has_next %}
+                                        <li><a href="?{{ openvs.next_page_number.querystring }}">&raquo;<span
+                                                class="sr-only"></span></a></li>
+                                        <li><a href="?{{ openvs.next_page_number.querystring }}">下一页<span
+                                                class="sr-only"></span></a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock base_content %}
+
+
+{% block base_footer_html %}
+    <!-- 添加 -->
+    <div class="modal inmodal" id="AddOpEnvModal" tabindex="-1" role="dialog" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-dialog" style="width: 450px;">
+            <div class="modal-content" style="margin-top: 100px;">
+
+                <div class="modal-header"
+                     style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="icon-close" style="font-size: 18px;"></i>
+                    </button>
+                    <h4 class="modal-title">添加环境</h4>
+                </div>
+
+                <form method="post" id="id_AddOpEnvForm">
+                    <div class="modal-body" style="height: 110px;">
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">环境名称：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="环境名称"
+                                       maxlength="20" name="name" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">备注：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="备注（没有可以不填）"
+                                       maxlength="100" name="desc">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="modal-footer" style="padding-right: 15px;padding-top: 10px; padding-bottom: 10px;">
+                    <a class="btn btn-sm btn-default" data-dismiss="modal">取消</a>
+                    <a class="btn btn-sm btn-default" id="id_AddOpEnvBtn">添加</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑 -->
+    {% for each_openv in openvs.object_list %}
+        <div class="modal inmodal" id="EditOpEnvModal{{ each_openv.id }}" tabindex="-1" role="dialog" aria-hidden="true"
+             data-backdrop="static">
+            <div class="modal-dialog" style="width: 450px;">
+                <div class="modal-content" style="margin-top: 100px;">
+
+                    <div class="modal-header"
+                         style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <i class="icon-close" style="font-size: 18px;"></i>
+                        </button>
+                        <h4 class="modal-title">编辑环境</h4>
+                    </div>
+
+                    <form method="post" id="id_EditOpEnvForm{{ each_openv.id }}">
+
+                        <div class="modal-body" style="height: 110px;">
+                            <input type="hidden" name="env_id" value="{{ each_openv.id }}">
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">环境名称：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="环境名称"
+                                           maxlength="20" name="name" required="" value="{{ each_openv.name }}">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">备注：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="备注（没有可以不填）"
+                                           maxlength="100" name="desc"
+                                           {% if each_openv.desc %}value="{{ each_openv.desc }}"{% endif %}>
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </form>
+
+                    <div class="modal-footer" style="padding-right: 20px;padding-top: 10px; padding-bottom: 10px;">
+                        <a class="btn btn-sm btn-default" data-dismiss="modal">取消</a>
+                        <a class="btn btn-sm btn-default" id="id_EditOpEnvBtn{{ each_openv.id }}">修改</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 编辑 -->
+        <script>
+            $(function () {
+                // 提交表单
+                $('#id_EditOpEnvBtn{{ each_openv.id }}').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'host_management:edit_openv' %}",
+                        data: $('#id_EditOpEnvForm{{ each_openv.id }}').serialize(),
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status == 'success') {
+                                window.location.reload();
+                            } else if (data.status == 'failed') {
+                                window.alert(data.msg);
+                            }
+                        }
+                    });
+                });
+            })
+        </script>
+
+        <!-- 停用 -->
+        <div class="modal inmodal" id="DeleteOpEnvModal{{ each_openv.id }}" tabindex="-1" role="dialog"
+             aria-hidden="true"
+             data-backdrop="static">
+            <div class="modal-dialog modal-sm" style="padding-top: 10%;">
+                <div class="modal-content">
+
+                    <div class="modal-header"
+                         style=" background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                        <button type="button" class="close" data-dismiss="modal">
+                            <i class="icon-close" style="font-size: 18px;"></i>
+                        </button>
+                        <h4 class="modal-title">警告！</h4>
+                    </div>
+
+                    <form method="post" id="id_DeleteOpEnvForm{{ each_openv.id }}">
+                        <input type="hidden" name="env_id" value="{{ each_openv.id }}">
+                        <div class="modal-body">
+                            <span style="font-size: 16px;color: black;">是否确定删除该记录？</span>
+                        </div>
+                    </form>
+
+                    <div class="modal-footer" style="padding: 10px;padding-top: 10px; padding-bottom: 10px;">
+                        <a class="btn btn-default" data-dismiss="modal" style="padding: 2px 10px;">取消</a>
+                        <a class="btn btn-default" id="id_DeleteOpEnvBtn{{ each_openv.id }}"
+                           style="padding: 2px 10px;">确定</a>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 停用 -->
+        <script>
+            $(function () {
+                // 提交表单
+                $('#id_DeleteOpEnvBtn{{ each_openv.id }}').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'host_management:del_openv' %}",
+                        data: $('#id_DeleteOpEnvForm{{ each_openv.id }}').serialize(),
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status == 'success') {
+                                window.location.href = "{% url 'host_management:openv_List' %}";
+                            } else if (data.status == 'failed') {
+                                window.alert(data.msg);
+                            }
+                        }
+                    });
+                });
+            })
+        </script>
+
+    {% endfor %}
+{% endblock base_footer_html %}
+
+
+{% block base_footer_js %}
+    <!-- 添加系统 -->
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_AddOpEnvBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'host_management:add_openv' %}",
+                    data: $('#id_AddOpEnvForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+{% endblock base_footer_js %}

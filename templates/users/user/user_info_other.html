@@ -1,0 +1,156 @@
+{% extends 'users/user_base.html' %}
+{% load staticfiles %}
+
+
+{% block base_title %}
+    他人信息
+{% endblock base_title %}
+
+
+{% block user_base_body %}
+    <!-- 右边消息列表 -->
+    <div class="col-sm-10" style="padding-left: 0; padding-right: 0;">
+        <div class="panel panel-default" id="body-content">
+
+            <div class="panel-body">
+                <div style="background-color: #1c2b36;height: 29vh">
+                    <div class="wrapper-lg">
+                        <div style="text-align: center;">
+                            <a>
+                                <img src="{{ MEDIA_URL }}{{ user_info.avatar }}" class="img-circle"
+                                     style="width: 128px; height: 128px;">
+                            </a>
+                        </div>
+
+                        <div style="text-align: center;padding-top: 30px;">
+                            <p style="font-size: 20px;font-weight: bolder;color: #fff;">{{ user_info.position.department.name }}
+                                - {{ user_info.position.name }} - {{ user_info.chinese_name }}</p>
+                            <p style="font-size: 20px;font-weight: bolder;color: #fff;">JOIN DAYS
+                                - {{ user_info.get_join_days }}</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="height: 56vh">
+                    <div class="wrapper-lg" style="padding-left: 0; padding-right: 0; padding-top: 0;">
+                        <div class="row" style="text-align: center;">
+                            <div class="col-sm-8" style="padding-top: 15px;">
+
+                                <table class="table table-bordered" style="font-size: 14px;color: #000">
+                                    <tbody>
+                                    <tr style="background-color: #1c2b36;font-size: 16px; font-weight: bolder;color: white;">
+                                        <td colspan="4">基本信息</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">姓名</td>
+                                        <td style="width: 30%">
+                                            {{ user_info.chinese_name }}{% if user_info.english_name %} [
+                                                {{ user_infoenglish_name }} ] {% endif %}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">用户名</td>
+                                        <td style="width: 30%">{{ user_info.username }} <span
+                                                style="color: orangered;">[ {{ user_info.get_role_display }} ]</span>
+                                        </td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">公司</td>
+                                        <td style="width: 30%">{{ user_info.position.department.company.name }}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">地址</td>
+                                        <td style="width: 30%">
+                                            {% if user_info.address %}{{ user_info.address }}{% else %}
+                                                暂无{% endif %}</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">部门</td>
+                                        <td style="width: 30%">{{ user_info.position.name }}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">职位</td>
+                                        <td style="width: 30%">{{ user_info.position.department.name }}</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">性别</td>
+                                        <td style="width: 30%">{{ user_info.get_gender_display }}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">生日</td>
+                                        <td style="width: 30%">
+                                            {% if user_info.birthday %}{{ user_info.birthday }}{% else %}
+                                                暂无{% endif %}</td>
+                                    </tr>
+
+                                    </tbody>
+                                </table>
+
+                                <table class="table table-bordered" style="font-size: 14px;color: #000">
+                                    <tbody>
+                                    <tr style="background-color: #1c2b36;font-size: 16px; font-weight: bolder;color: white;">
+                                        <td colspan="4">联系方式</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">电话</td>
+                                        <td style="width: 30%">{{ user_info.mobile }}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">QQ</td>
+                                        <td style="width: 30%">
+                                            {% if user_info.qq %}{{ user_info.qq }}{% else %}暂无{% endif %}</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">微信</td>
+                                        <td style="width: 30%">
+                                            {% if user_info.wechat %}{{ user_info.wechat }}{% else %}
+                                                暂无{% endif %}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">邮箱</td>
+                                        <td style="width: 30%">{{ user_info.email }}</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+
+                                <table class="table table-bordered" style="font-size: 14px;color: #000">
+                                    <tbody>
+                                    <tr style="background-color: #1c2b36;font-size: 16px; font-weight: bolder;color: white;">
+                                        <td colspan="4">账户信息</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">账号状态</td>
+                                        <td style="width: 30%">{% if user_info.is_active %}激活{% else %}
+                                            <span style="color: orangered;">未激活</span>{% endif %}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">开通日期</td>
+                                        <td style="width: 30%">{{ user_info.date_joined }}</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">最后一次登录</td>
+                                        <td style="width: 30%">{{ user_info.last_login }}</td>
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">停用日期</td>
+                                        <td style="width: 30%">暂无</td>
+                                    </tr>
+                                    <tr class="gradeX odd" role="row">
+                                        <td class="text-right" style="width: 20%; font-weight: bolder;">其它</td>
+                                        <td colspan="3">暂无</td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <div class="col-sm-4" style="padding-top: 15px;padding-left: 0;">
+
+                                <table class="table table-bordered" style="font-size: 14px;color: #000">
+                                    <tbody>
+                                    <tr style="background-color: #1c2b36;font-size: 16px; font-weight: bolder;color: white;">
+                                        <td>其他说明</td>
+                                    </tr>
+                                    <tr class="gradeX odd" style="height: 40vh;" role="row">
+                                        <td class="text-left">
+                                            {% if user_info.desc %}{{ user_info.desc }}{% else %}
+                                                暂无{% endif %}</td>
+                                    </tr>
+                                </table>
+
+                                <div class="list-group">
+                                    <a class="list-group-item"
+                                       style="background-color: gray;; color: white;">
+                                        这是他人信息
+                                    </a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock user_base_body %}

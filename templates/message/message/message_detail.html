@@ -1,0 +1,263 @@
+{% extends 'message/message_base.html' %}
+{% load staticfiles %}
+
+
+{% block base_title %}
+    消息详情
+{% endblock base_title %}
+
+
+{% block message_content %}
+    <!-- 右边消息 -->
+    <div class="col-sm-10" style="padding-left: 0; padding-right: 0;">
+        <div class="panel" id="panel-content">
+            <!-- 头部 -->
+            <div class="panel-heading">
+                <div style="background:url({% static 'img/bg.jpg' %}) center center; background-size:cover">
+                    <div class="wrapper-lg bg-white-opacity">
+                        <div class="row m-t">
+                            <div class="col-sm-7">
+                                <a href="{% url 'users:other_user_info' msg_start.send_user.id %}" class="thumb-lg pull-left m-r">
+                                    <img src="{{ MEDIA_URL }}{{ msg_start.send_user.avatar }}" class="img-circle"
+                                         style="width: 96px; height: 96px;">
+                                </a>
+                                <div class="clear m-b">
+                                    <div class="m-b m-t-sm">
+                                        <span class="h3 text-black">{{ msg_start.send_user.chinese_name }}</span>
+                                        <small class="m-l"><i class="glyphicon glyphicon-map-marker"></i>
+                                        </small>
+                                        <span class="h5 text-black">{{ msg_start.send_user.address }} [ {{ msg_start.send_user.position.department.name }} - {{ msg_start.send_user.position.name }} ]</span>
+                                    </div>
+                                    <p class="m-b">
+
+                                        <button style="width: 50px;" class="btn btn-info btn-xs"
+                                                data-container="body" data-toggle="popover"
+                                                data-trigger="hover"
+                                                data-placement="bottom"
+                                                data-content="QQ号：{{ msg_start.send_user.qq }}">
+                                            <i class="fa fa-qq"></i>
+                                        </button>
+
+                                        <button style="width: 50px;" class="btn btn-success btn-xs"
+                                                data-container="body" data-toggle="popover"
+                                                data-trigger="hover"
+                                                data-placement="bottom"
+                                                data-content="微信号：{{ msg_start.send_user.wechat }}">
+                                            <i class="fa fa-wechat"></i>
+                                        </button>
+
+                                        <button style="width: 50px;" class="btn btn-danger btn-xs"
+                                                data-container="body" data-toggle="popover"
+                                                data-trigger="hover"
+                                                data-placement="bottom"
+                                                data-content="手机号：{{ msg_start.send_user.mobile }}">
+                                            <i class="fa fa-phone"></i>
+                                        </button>
+                                    </p>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-5">
+                                <div class="pull-right pull-none-xs text-center">
+                                    <span class="m-b-md inline m">
+                                        <span class="h3 block font-bold">{{ msg_start.send_user.get_join_days }}</span>
+                                        <small>JOIN DAYS</small>
+                                    </span>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 消息 -->
+            <div class="panel-body" style="padding-top: 0;">
+
+                <div class="col-sm-8" style="padding-left: 0;">
+                    <div class="panel b-a lt">
+                        <div class="panel-heading pos-rlt" style="background-color: #1c2b36;">
+                            <span style="color: white;"><b>RECEIVERS：</b>
+                                {% for each_rec in rec_users %}
+                                    <a style="color: white;" href="{% url 'users:other_user_info' each_rec.user.id %}">
+                                    {% if forloop.counter == 1 %}{{ each_rec.user.chinese_name }}{% else %}，{{ each_rec.user.chinese_name }}{% endif %}
+                                    </a>
+                                {% endfor %}
+                            </span>
+                            <span class="text-muted m-l-sm pull-right">{{ msg_start.add_time }}</span>
+
+                            <a href="" class="pull-right">
+                                <i class="fa fa-check-circle" style="color: lime"></i>
+                            </a>
+                        </div>
+
+                        <div class="panel-body" id="comment_body" style="overflow-y: auto;">
+
+                            <!-- 消息 -->
+                            <div>{{ msg_start.content|safe }}</div>
+
+                            {% ifnotequal msg_replay '' %}
+                                <hr style="margin-bottom: 30px;margin-top: 30px;">
+
+                                {% for each_replay in msg_replay %}
+                                    <!-- 回复 -->
+                                    <div class="m-l-lg" style="margin-left: 15px;margin-bottom: 15px;">
+                                        <a class="pull-left thumb-sm avatar">
+                                            <img src="{{ MEDIA_URL }}{{ each_replay.replay_user.avatar }}"
+                                                 alt="...">
+                                        </a>
+                                        <div class="m-l-xxl panel b-a">
+                                            <div class="panel-heading pos-rlt">
+                                                <span class="arrow left pull-up"></span>
+                                                <span class="text-muted m-l-sm pull-right">{{ each_replay.add_time }}</span>
+                                                <a href="" style="
+                                                        {% if msg_start.send_user.id == each_replay.replay_user.id %}
+                                                            color: orangered;
+                                                        {% else %}
+                                                            color: #003366;
+                                                        {% endif %}
+
+                                                        {% if request.user.id == each_replay.replay_user.id %}
+                                                            color: red;
+                                                        {% endif %}">
+
+                                                    <b>#{{ forloop.counter }} REPLAY
+                                                        FROM：</b>&nbsp;&nbsp;{{ each_replay.replay_user.chinese_name }}
+                                                    [ {{ each_replay.replay_user.username }}
+                                                    - {{ each_replay.replay_user.position.name }} ]
+                                                </a>
+
+                                                {% if request.user.id == each_replay.replay_user.id %}
+                                                    <a type="button" class="close" aria-hidden="true">
+                                                        <i class="fa fa-close"></i></a>
+                                                {% endif %}
+                                                <hr style="margin-top: 10px;">
+
+                                                <p style="margin-top: 10px;">{{ each_replay.content|safe }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                {% endfor %}
+                            {% endifnotequal %}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-4" style="padding-left: 0; padding-right: 0;" id="comment_right">
+                    <div class="panel b-a lt">
+                        <div class="panel-heading pos-rlt" style="background-color: #1c2b36;">
+                            <span style="color: white;">
+                                <b>REPLAY FROM：</b>
+                                &nbsp;{{ request.user.chinese_name }}
+                                [ {{ request.user.username }}- {{ request.user.position.name }} ]
+                            </span>
+                        </div>
+
+                        <div class="panel-body" id="comment_content">
+                            <form id="id_MessageCommentForm{{ msg_start.id }}_{{ request.user.id }}">
+                                <input type="hidden" name="msg_id" value="{{ msg_start.id }}">
+
+                                <div id="user_msg_{{ msg_start.id }}_{{ request.user.id }}"><p>在此处输入消息内容!</p></div>
+
+                                <script>
+                                    $(document).ready(function () {
+                                        var c_h =  $("#comment_right").height();
+                                        var com_height = c_h - 220;
+                                        console.log(com_height);
+
+                                        $('#user_msg_{{ msg_start.id }}_{{ request.user.id }}').summernote({
+                                            height: com_height,
+                                            lang: 'zh-CN',
+                                            placeholder: 'write here...',
+                                            toolbar: [
+                                                ['undo', ['undo']],
+                                                ['style', ['style']],
+                                                ['fontname', ['fontname']],
+                                                ['style', ['bold', 'italic', 'underline']],
+                                                ['fontsize', ['fontsize']],
+                                                ['color', ['color']],
+                                                ['para', ['ul', 'ol', 'paragraph']],
+                                                ['table', ['table']],
+                                                ['link', ['link']],
+                                                ['picture', ['picture']],
+                                                ['codeview', ['codeview']],
+                                            ],
+
+                                            callbacks: {
+                                                onImageUpload: function (files) {
+                                                    //上传图片到服务器
+                                                    var formData = new FormData();
+                                                    formData.append('file', files[0]);
+                                                    $.ajax({
+                                                        url: '{% url 'message:message_img_upload' %}',//后台文件上传接口
+                                                        type: 'POST',
+                                                        data: formData,
+                                                        processData: false,
+                                                        contentType: false,
+                                                        beforeSend: function (xhr, settings) {
+                                                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                                                        },
+                                                        success: function (data) {
+                                                            console.log(data)
+                                                            $('#user_msg_{{ msg_start.id }}_{{ request.user.id }}').summernote('insertImage', data.img_url);
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        })
+                                    });
+                                </script>
+                            </form>
+                        </div>
+
+                        <div class="panel-footer">
+                            <a class="list-group-item text-center"
+                               style="background-color: #009688; color: white;"
+                               id="id_MessageCommentBtn{{ msg_start.id }}_{{ request.user.id }}">回 复</a>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+    </div>
+{% endblock message_content %}
+
+
+{% block base_footer_js %}
+    <script>
+        $(function () {
+            $("[data-toggle='popover']").popover();
+        });
+    </script>
+
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_MessageCommentBtn{{ msg_start.id }}_{{ request.user.id }}').on('click', function () {
+                var user_msg = $("#user_msg_{{ msg_start.id }}_{{ request.user.id }}").summernote('code').replace(/;/g, '%%%%%');
+                console.log(user_msg);
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'message:message_replay' %}",
+                    data: $('#id_MessageCommentForm{{ msg_start.id }}_{{ request.user.id }}').serialize() + '&user_msg=' + user_msg,
+                    async: true,
+                    dataType: 'json',
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+{% endblock base_footer_js %}

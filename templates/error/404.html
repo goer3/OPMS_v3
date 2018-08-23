@@ -1,0 +1,21 @@
+{% load staticfiles %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>404</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <div id="errorpage" style="padding-top: 200px;">
+        <div class="tfans_error">
+            <div class="logo" style="background: url({% static 'img/error/tfans.jpg' %});"></div>
+            <div class="errortans">
+                <div class="e404" style="background: url({% static 'img/error/404.png' %});"></div>
+                <p><b>PAGE NOT FOUND！</b></p>
+                <a href="{% url 'users:index' %}" class="err_bt">返回首页</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

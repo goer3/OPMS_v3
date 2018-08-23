@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block base_title %}
+    获取帮助
+{% endblock base_title %}
+
+
+{% block base_content %}
+
+    <!-- 右边主体 -->
+    <div class="app-content">
+        <div class="app-content-body fade-in-up">
+            <div class="padder" style="padding-top: 10px;">
+
+                <div class="col-md-12" style="padding-left: 0; padding-right: 0;">
+                    <div class="panel panel-default" id="body-content">
+                        <div class="panel-heading">
+                            <div style="display: block; border-left: 5px solid #1c2b36; padding-left: 10px; font-size: 20px; font-weight: bolder; line-height: 25px;color: #1c2b36;">
+                                帮助反馈
+                            </div>
+                        </div>
+
+                        <div class="panel-body" id="table_content">
+
+                            <div class="row" style="margin-top: 5%;">
+                                <div class="col-md-3"></div>
+                                <div class="col-md-6">
+                                    <div>
+                                        <p class="m-t"></p>
+
+                                        <div class="row">
+                                            <div class="col-lg-12">
+                                                <form method="post" action="{% url 'users:help' %}">
+
+                                                    {% csrf_token %}
+
+                                                    <span style="color: red; margin-bottom: 10px;">{{ msg }}</span>
+
+                                                    <div class="form-group">
+                                                        <div>
+                                                            <input type="text" name="subject" class="form-control"
+                                                                   placeholder="请输入反馈的主题"
+                                                                   maxlength="255">
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- 消息主体 -->
+                                                    <div class="form-group" style="margin-bottom: 0;">
+                                                            <textarea class="form-control" placeholder="请输入反馈的内容"
+                                                                      name="content" rows="20"></textarea>
+                                                    </div>
+
+                                                    <div style="margin-top: 15px;">
+                                                        <button type="submit" class="btn btn-black block full-width m-b"
+                                                                style="color: white;">提交反馈
+                                                        </button>
+                                                    </div>
+                                                </form>
+
+                                            </div>
+                                        </div>
+                                        <p class="m-t"></p>
+                                    </div>
+                                </div>
+                                <div class="col-md-3"></div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock base_content %}

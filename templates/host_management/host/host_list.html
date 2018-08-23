@@ -1,0 +1,697 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+
+{% block base_title %}
+    主机列表
+{% endblock base_title %}
+
+
+{% block base_header_css %}
+    <!-- 弹框详情css -->
+    <style>
+        .popover-title {
+            color: #1c2b36;
+            font-weight: bolder;
+        }
+
+        .popover {
+            background-color: #1c2b36;
+            color: white;
+        }
+    </style>
+
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap_date/bootstrap-select.css' %}" type="text/css">
+
+    <link href="{% static 'webssh_static/css/xterm.min.css' %}" rel="stylesheet" type="text/css"/>
+    <link href="{% static 'webssh_static/css/fullscreen.min.css' %}" rel="stylesheet" type="text/css"/>
+
+{% endblock base_header_css %}
+
+
+{% block base_header_js %}
+    <script src="{% static 'plugins/bootstrap_date/bootstrap-select.js' %}"></script>
+
+    <!-- 下拉选择框 -->
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            $('.selectpicker2').selectpicker({
+                'selectedText': 'cat',
+                'width': '150',
+            });
+        })
+    </script>
+
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            $('.selectpicker').selectpicker({
+                'selectedText': 'cat',
+            });
+        })
+    </script>
+
+    <style>
+        .selectpicker1 .bootstrap-select.btn-group {
+            margin-bottom: 0px;
+            margin-left: 0;
+        }
+
+        .selectpicker1 .bootstrap-select > button {
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+    </style>
+{% endblock base_header_js %}
+
+
+{% block base_content %}
+    <div class="app-content">
+        <div class="app-content-body fade-in-up">
+            <div class="padder" style="padding-top: 10px;">
+
+                <div class="col-md-12" style="padding-left: 0; padding-right: 0;">
+                    <div class="panel panel-default" id="body-content">
+                        <div class="panel-heading">
+                            <div style="display: block; border-left: 5px solid #1c2b36; padding-left: 10px; font-size: 20px; font-weight: bolder; line-height: 25px;color: #1c2b36;">
+                                主机列表{% ifnotequal keyword '' %}&nbsp;&nbsp;
+                                ："{{ keyword }}" 关键字搜索结果{% endifnotequal %}
+                            </div>
+                        </div>
+
+                        <div class="panel-body" id="table_content">
+
+                            <div class="selectBox">
+                                {% if request.user.role > 1 %}
+                                    <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#AddHostModal"><i
+                                            class="fa fa-plus"></i> 添加主机</a>
+                                {% endif %}
+
+                                <span class="selectpicker1">
+                        <select id="project_chose" class="selectpicker2">
+                            <option value="0" {% if project == 0 %}selected{% endif %}>所有项目</option>
+                            {% for each_project in projects %}
+                                <option value="{{ each_project.id }}"
+                                        {% if project == each_project.id %}selected{% endif %}>{{ each_project.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </span>
+
+                                <span class="selectpicker1">
+                        <select id="idc_chose" class="selectpicker2">
+                            <option value="0" {% if idc == 0 %}selected{% endif %}>所有机房</option>
+                            {% for each_idc in idcs %}
+                                <option value="{{ each_idc.id }}"
+                                        {% if idc == each_idc.id %}selected{% endif %}>{{ each_idc.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </span>
+
+                                <span class="selectpicker1">
+                        <select id="env_chose" class="selectpicker2">
+                            <option value="0" {% if env == 0 %}selected{% endif %}>所有环境</option>
+                            {% for each_env in envs %}
+                                <option value="{{ each_env.id }}"
+                                        {% if env == each_env.id %}selected{% endif %}>{{ each_env.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </span>
+
+                                <span class="selectpicker1">
+                        <select id="use_chose" class="selectpicker2">
+                            <option value="0" {% if use == 0 %}selected{% endif %}>所有用途</option>
+                            {% for each_use in uses %}
+                                <option value="{{ each_use.id }}"
+                                        {% if use == each_use.id %}selected{% endif %}>{{ each_use.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </span>
+
+                                <!-- 功能 -->
+                                <form class="navbar-form pull-right " role="search" style="margin-top: 0;">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input type="text" name="keyword"
+                                                   class="form-control input-sm bg-light no-border rounded "
+                                                   placeholder="关键词查找记录" style="width: 150px;">
+                                            <span class="input-group-btn">
+                                            <button type="submit" class="btn btn-sm bg-auto rounded">
+                                                <i class="fa fa-search"></i>
+                                            </button>
+                                        </span>
+                                        </div>
+                                    </div>
+                                </form>
+                                <span style="font-size: 14px; padding-top: 5px;" class="pull-right">共 <b
+                                        style="color: orangered">{{ record_nums }}</b> 条</span>
+                            </div>
+
+
+                            <!-- 列表 -->
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <table class="table table-striped table-bordered">
+                                        <!-- 标题行 -->
+                                        <thead>
+                                        <tr role="row">
+                                            <th class="text-center" width="60">ID</th>
+                                            <th class="text-center">内网 IP</th>
+                                            <th class="text-center">公网 IP</th>
+                                            <th class="text-center">操作系统</th>
+                                            <th class="text-center">环境</th>
+                                            <th class="text-center">项目</th>
+                                            <th class="text-center">机房</th>
+                                            <th class="text-center">用途</th>
+                                            <th class="text-center">添加日期</th>
+                                            <th class="text-center">最后更新日期</th>
+                                            <th class="text-center">操作</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+
+                                        {% if host_records.object_list %}
+                                            {% for each_record in host_records.object_list %}
+                                                <tr class="gradeX odd" role="row">
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ forloop.counter }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_record.in_ip }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">
+                                                        {% if each_record.out_ip %}{{ each_record.out_ip }}{% else %}
+                                                            暂无{% endif %}</td>
+                                                    <td class="text-center" style="vertical-align:middle;">
+                                                        {{ each_record.system.name }}{{ each_record.system.version }}
+                                                        ( {{ each_record.system.get_bit_display }} )
+                                                    </td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_record.op_env }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_record.project.name }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_record.idc.name }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_record.use.name }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_record.add_time }}</td>
+                                                    <td class="text-center"
+                                                        style="vertical-align:middle;">{{ each_record.update_time }}</td>
+                                                    <td class="text-center" style="vertical-align:middle;">
+                                                        <a class="btn btn-xs"
+                                                           href="{% url 'host_management:host_info' each_record.id %}"
+                                                           style="background-color: #009688;color: white;">
+                                                            查看详情
+                                                        </a>
+                                                        <a type="button" class="btn btn-xs webssh{{ each_record.id }}"
+                                                           style="background-color: #f05050;color: white;">
+                                                            远程终端
+                                                        </a>
+                                                    </td>
+                                                </tr>
+                                            {% endfor %}
+                                        {% else %}
+                                            <td class="text-center" colspan="11" style="vertical-align:middle;">暂无记录
+                                            </td>
+                                        {% endif %}
+
+
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- 页码 -->
+                        <div class="panel-footer" style="padding-top: 0; padding-bottom: 0;">
+                            <div class="text-center">
+                                <ul class="pagination" style="margin-top: 10px; margin-bottom: 10px;">
+
+                                    <!-- 上一页 -->
+                                    {% if host_records.has_previous %}
+                                        <li><a href="?{{ host_records.previous_page_number.querystring }}">上一页<span
+                                                class="sr-only"></span></a></li>
+                                        <li><a href="?{{ host_records.previous_page_number.querystring }}">&laquo;<span
+                                                class="sr-only"></span></a></li>
+                                    {% endif %}
+
+                                    <!-- 页码 -->
+                                    {% for page in host_records.pages %}
+                                        {% if page %}
+                                            <!-- 当前页 -->
+                                            {% ifequal page host_records.number %}
+                                                <li class="active"><a href="?page={{ page }}">{{ page }}<span
+                                                        class="sr-only">(current)</span></a></li>
+                                                <!-- 其它页 -->
+                                            {% else %}
+                                                <li><a href="?page={{ page }}">{{ page }}<span
+                                                        class="sr-only"></span></a></li>
+                                            {% endifequal %}
+                                            <!-- 省略页 -->
+                                        {% else %}
+                                            <li><a href="">...<span class="sr-only"></span></a></li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    <!-- 下一页 -->
+                                    {% if host_records.has_next %}
+                                        <li><a href="?{{ host_records.next_page_number.querystring }}">&raquo;<span
+                                                class="sr-only"></span></a></li>
+                                        <li><a href="?{{ host_records.next_page_number.querystring }}">下一页<span
+                                                class="sr-only"></span></a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock base_content %}
+
+
+{% block base_footer_html %}
+    <div class="modal inmodal" id="AddHostModal" tabindex="-1" role="dialog" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-dialog" style="width: 900px;">
+            <div class="modal-content" style="margin-top: 100px;">
+
+                <div class="modal-header"
+                     style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="icon-close" style="font-size: 18px;"></i>
+                    </button>
+                    <h4 class="modal-title">添加主机</h4>
+                </div>
+
+                <form method="post" id="id_AddHostForm">
+                    <div class="modal-body" style="height: 470px;">
+                        <div class="col-md-6">
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">内网 IP：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="内网 IP"
+                                           maxlength="20" name="in_ip" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">外网 IP：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="外网 IP（没有可以不填）"
+                                           maxlength="20" name="out_ip" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">主机名：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="主机名"
+                                           maxlength="20" name="hostname" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">操作系统：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <select name="system" class="selectpicker form-control" style="display: none;">
+                                        {% for each_system in systems %}
+                                            <option value="{{ each_system.id }}">{{ each_system.name }} {{ each_system.version }}
+                                                ( {{ each_system.get_bit_display }} )
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">CPU：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="CPU"
+                                           maxlength="50" name="cpu" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">磁盘：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="磁盘"
+                                           maxlength="20" name="disk" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">内存：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="内存"
+                                           maxlength="20" name="memory" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">带宽：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="带宽（没有外网填0）"
+                                           maxlength="20" name="network" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">远程端口：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="远程端口"
+                                           maxlength="20" name="ssh_port" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">root远程：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <select name="root_ssh" class="selectpicker form-control" style="display: none;">
+                                        <option value="True" selected>是</option>
+                                        <option value="False">否</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">服务环境：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <select name="op_env" class="selectpicker form-control" style="display: none;">
+                                        {% for each_env in envs %}
+                                            <option value="{{ each_env.id }}">{{ each_env.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">用途：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <select name="use" class="selectpicker form-control" style="display: none;">
+                                        {% for each_use in uses %}
+                                            <option value="{{ each_use.id }}">{{ each_use.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">项目：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <select name="project" class="selectpicker form-control" style="display: none;">
+                                        {% for each_project in projects %}
+                                            <option value="{{ each_project.id }}">{{ each_project.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">机房：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <select name="idc" class="selectpicker form-control" style="display: none;">
+                                        {% for each_idc in idcs %}
+                                            <option value="{{ each_idc.id }}">{{ each_idc.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">管理账户：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="管理员账户"
+                                           maxlength="20" name="admin_user" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">管理密码：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="管理员密码"
+                                           maxlength="50" name="admin_pass" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">普通账户：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="普通用户账户（没有可以不填）"
+                                           maxlength="20" name="normal_user" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">普通密码：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="普通用户密码（没有可以不填）"
+                                           maxlength="50" name="normal_pass" required="">
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">负责人：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <select name="op_user" class="selectpicker form-control" style="display: none;">
+                                        {% for each_user in users %}
+                                            <option value="{{ each_user.id }}">{{ each_user.chinese_name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-group"
+                                 style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                <div class="col-md-3">
+                                    <span style="font-size: 14px;">备注：</span>
+                                </div>
+                                <div class="col-md-9" style="padding: 0;">
+                                    <input type="text" class="form-control" placeholder="备注（没有可以不填）"
+                                           maxlength="200" name="desc" required="">
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </form>
+
+                <div class="modal-footer" style="padding-right: 30px;padding-top: 10px; padding-bottom: 10px;">
+                    <a class="btn btn-sm btn-default" data-dismiss="modal">取消</a>
+                    <a class="btn btn-sm btn-default" id="id_AddHostBtn">添加</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+{% endblock base_footer_html %}
+
+
+{% block base_footer_js %}
+    <!-- 选择筛选跳转 -->
+    <script type="text/javascript">
+        $(".selectBox").on("change", ".selectpicker2", function () {
+            var i = $(this).parent().index()
+            var v = $(this).val()
+            console.log(i, v)
+            if (i == 1) {
+                window.location.href = changeURLArg(window.location.href, 'project', v)
+            }
+            if (i == 2) {
+                window.location.href = changeURLArg(window.location.href, 'idc', v)
+            }
+            if (i == 3) {
+                window.location.href = changeURLArg(window.location.href, 'env', v)
+            }
+            if (i == 4) {
+                window.location.href = changeURLArg(window.location.href, 'use', v)
+            }
+        })
+
+        function changeURLArg(url, arg, arg_val) {
+            var pattern = arg + '=([^&]*)';
+            var replaceText = arg + '=' + arg_val;
+            if (url.match(pattern)) {
+                var tmp = '/(' + arg + '=)([^&]*)/gi';
+                tmp = url.replace(eval(tmp), replaceText);
+                return tmp;
+            } else {
+                if (url.match('[\?]')) {
+                    return url + '&' + replaceText;
+                } else {
+                    return url + '?' + replaceText;
+                }
+            }
+        }
+    </script>
+
+    <!-- 添加主机 -->
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_AddHostBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'host_management:add_host' %}",
+                    data: $('#id_AddHostForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+
+    <script src="{% static 'webssh_static/js/xterm.min.js' %}"></script>
+    <script src="{% static 'webssh_static/js/fullscreen.min.js' %}"></script>
+
+    {% for each_host_record in host_records.object_list %}
+        <script>
+            jQuery(function ($) {
+                $('.webssh{{ each_host_record.id }}').click(function (event) {
+                    event.preventDefault();
+
+                    var id_a = $(this).parent().parent().attr('id');
+
+                    $.ajax({
+                        headers: {"X-CSRFToken": '{{ csrf_token }}'},
+                        url: "{% url 'host_management:web_ssh' each_host_record.id %}",
+                        type: 'POST',
+                        data: {'id': id_a},
+                        success: function (ret) {
+                            var obj = JSON.parse(ret);
+                            var ips = obj.ip;
+                            var ports = obj.port;
+                            var usernames = obj.username;
+                            var passwords = obj.password;
+
+                            $.ajax({
+                                url: "http://{{ WEBSSH_IP }}:{{ WEBSSH_PORT }}/",
+                                type: 'POST',
+                                data: {hostname: ips, port: ports, username: usernames, password: passwords},
+                                crossDomain: true,
+                                success: callback
+                            });
+
+                            function callback(msg) {
+                                // console.log(msg);
+                                if (msg.status) {
+                                    swal("错误", "删除" + "[ " + msg.status + " ]" + "遇到错误", "error");
+                                    return;
+                                }
+
+                                var url = "ws://{{ WEBSSH_IP }}:{{ WEBSSH_PORT }}/" + 'ws?id=' + msg.id,
+                                    socket = new WebSocket(url),
+                                    terminal = document.getElementById('#terminal'),
+                                    term = new Terminal({
+                                        cols: 1000,
+                                        rows: 50,
+                                        screenKeys: true
+                                    });
+
+                                // console.log(url);
+                                term.on('data', function (data) {
+                                    // console.log(data);
+                                    socket.send(data);
+                                });
+
+                                socket.onopen = function (e) {
+                                    $('.container1').hide();
+                                    term.open(terminal, true);
+                                    term.toggleFullscreen(true);
+                                };
+
+                                socket.onmessage = function (msg) {
+                                    console.log(msg);
+                                    term.write(msg.data);
+                                };
+
+                                socket.onerror = function (e) {
+                                    console.log(e);
+                                };
+
+                                socket.onclose = function (e) {
+                                    console.log(e);
+                                    term.destroy();
+                                    $('.container1').show();
+                                    // status.text(e.reason);
+                                };
+                            }
+                        }
+                    });
+                });
+            });
+        </script>
+    {% endfor %}
+
+
+{% endblock base_footer_js %}

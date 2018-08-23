@@ -1,0 +1,377 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+{% load doc_tags %}
+
+{% block base_title %}
+    文档详情
+{% endblock base_title %}
+
+
+
+{% block base_header_js %}
+    <script src="{% static 'plugins/ckeditor/ckeditor.js' %}"></script>
+    <link href="{% static 'plugins/ckeditor/plugins/codesnippet/lib/highlight/styles/monokai_sublime.css' %}"
+          rel="stylesheet"/>
+    <script src="{% static 'plugins/ckeditor/plugins/codesnippet/lib/highlight/highlight.pack.js' %}"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    <style>
+        pre {
+            padding: 0;
+            margin: 0 0 10px;
+            font-size: 13px;
+            background-color: #f5f5f5;
+            border: none;
+        }
+    </style>
+
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap_date/bootstrap-select.css' %}" type="text/css">
+    <script src="{% static 'plugins/bootstrap_date/bootstrap-select.js' %}"></script>
+
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            $('.selectpicker').selectpicker({
+                'selectedText': 'cat',
+            });
+        })
+    </script>
+
+    <!-- 下拉选择框 -->
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            $('.selectpicker2').selectpicker({
+                'selectedText': 'cat',
+                'width': '150',
+            });
+        })
+    </script>
+
+    <style>
+        .selectpicker1 .bootstrap-select.btn-group {
+            margin-bottom: 0px;
+            margin-left: 0;
+        }
+
+        .selectpicker1 .bootstrap-select > button {
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+    </style>
+{% endblock base_header_js %}
+
+{% block base_content %}
+    <div class="app-content">
+        <div class="app-content-body fade-in-up">
+            <div class="padder" style="padding-top: 10px;">
+
+                <div class="col-sm-2" style="padding-left: 0;padding-right: 10px;">
+                    <div class="panel panel-default" id="body-content">
+                        <div class="panel-heading" style="background-color: #fff; color: #1c2b36;">
+                            标签列表
+                        </div>
+
+                        <div class="panel-body" id="user_action_record" style="overflow-y: auto;">
+                            <table class="table">
+                                {% for each_tag in tags %}
+                                    {% if each_tag %}
+                                        <tr>
+                                            <td>
+                                                <span class="pull-right">（ {{ each_tag.id|Get_Tag_Nums }} ）</span>
+                                                <a href="{% url 'document_management:doc_list' 'document' %}?&tag={{ each_tag.id }}"
+                                                   style="color: #003366;">{{ each_tag.name }}</a>
+                                            </td>
+                                        </tr>
+                                    {% endif %}
+                                {% endfor %}
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-8" style="padding-left: 0; padding-right: 0;">
+                    <div class="panel panel-default" id="body-content">
+
+                        <div class="panel-body" id="table_content">
+                            <div style="display: block; background-color: #ebebeb; border-left: 5px solid #2f889a; border-right: 5px solid #2f889a; font-size: 18px; font-weight: bolder; line-height: 40px;color: #1c2b36; text-align: center;">
+                                {{ doc_info.subject }}
+                            </div>
+
+                            <div style="line-height: 30px;padding-top: 10px;">
+                                <form method="get">
+                                    <a href="{% url 'document_management:doc_list' doc_cate %}"
+                                       class="btn btn-sm btn-default"><i
+                                            class="fa fa-reply">&nbsp;&nbsp;返回列表</i></a>
+                                    <a class="btn btn-sm btn-default">作者：{{ doc_info.add_user.chinese_name }}</a>
+                                    <a class="btn btn-sm btn-default">更新：{{ doc_info.update_time }}</a>
+                                    <a class="btn btn-sm btn-default">类型：{{ doc_info.get_belong_display }}</a>
+                                    <a class="btn btn-sm btn-default">标签：{% for each in doc_info.tags.all %}
+                                        {% if forloop.counter == 1 %}{{ each.name }}{% else %},{{ each.name }}
+                                        {% endif %}{% endfor %}</a>
+
+                                    <div class="pull-right">
+                                        <a data-toggle="modal" data-target="#EditDocumentModal" title="编辑"
+                                           class="btn btn-sm btn-default"><i class="fa fa-edit"> 编辑</i></a>
+
+                                        <a data-toggle="modal" data-target="#DeleteDocumentModal" title="删除"
+                                           class="btn btn-sm btn-default"><i class="fa fa-close"> 删除</i></a>
+
+
+                                        {% if doc_info.belong == 1 %}
+                                            <a href="" title="导出PDF" class="btn btn-sm btn-default"><i
+                                                    class="fa fa-print">
+                                                导出</i></a>
+                                        {% else %}
+                                            <button type="submit"
+                                                    formaction="{% url 'document_management:doc_script_download' doc_info.id %}"
+                                                    class="btn btn-sm btn-default"><i class="fa fa-download"> 下载</i>
+                                            </button>
+                                        {% endif %}
+
+                                    </div>
+                                </form>
+                            </div>
+
+                            <div style="padding-top: 10px;">
+                                <div class="panel panel-default">
+                                    <div class="panel-body" id="doc_show_area" style="overflow-y: auto;">
+                                        <div style="font-size: 14px;">
+                                            {{ doc_info.content|safe }}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-2" style="padding-left: 10px;padding-right: 0;">
+                    <div class="panel panel-default" id="body-content">
+                        <div class="panel-heading" style="background-color: #fff; color: #1c2b36;">
+                            操作记录
+                        </div>
+
+                        <div class="panel-body" id="user_action_record" style="overflow-y: auto;">
+                            <table class="full-width">
+
+                                {% for each_record in op_record %}
+                                    <tr style="height: 30px;">
+                                        <td width="30%" class="text-right"
+                                            style="padding-right: 15px; border-right: 2px solid
+                                                    {% ifequal each_record.operation 1 %} #00bc12 {% endifequal %}
+                                                    {% ifequal each_record.operation 2 %} #177cb0 {% endifequal %}
+                                                    {% ifequal each_record.operation 3 %} #fff143 {% endifequal %}
+                                                    {% ifequal each_record.operation 4 %} #ff2d51 {% endifequal %}
+                                                    {% ifequal each_record.operation 5 %} #1c2b36 {% endifequal %}
+                                                    {% ifequal each_record.operation 6 %} #FF00CC {% endifequal %}">{{ each_record.add_time|date:"m-d H:i" }}
+                                        </td>
+                                        <td width="70%" style="padding-left: 15px;">
+                                            <a href="{% url 'users:other_user_info' each_record.op_user.id %}"
+                                               style="color:#006699 ;">{{ each_record.op_user.chinese_name }}</a>&nbsp;&nbsp;&nbsp;&nbsp;{{ each_record.get_operation_display }}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="modal inmodal" id="EditDocumentModal" tabindex="-1" role="dialog" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-dialog" style="width: 1000px;">
+            <div class="modal-content">
+
+                <div class="modal-header"
+                     style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="icon-close" style="font-size: 18px;"></i>
+                    </button>
+                    <h4 class="modal-title">修改文档</h4>
+                </div>
+
+                <form method="post" id="id_EditDocumentForm">
+                    <div class="modal-body">
+
+                        <input type="hidden" name="doc_id" value="{{ doc_info.id }}">
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-1">
+                                <span style="font-size: 14px;">标题：</span>
+                            </div>
+                            <div class="col-md-11" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="请在此输入标题"
+                                       maxlength="30" name="subject" value="{{ doc_info.subject }}" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-1">
+                                <span style="font-size: 14px;">标签：</span>
+                            </div>
+                            <div class="col-md-11" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="文档标签（多个使用英文逗号隔开）" maxlength="50"
+                                       name="tags" required=""
+                                       value="
+
+
+
+
+
+                                               {% for each in doc_info.tags.all %}{% if forloop.counter == 1 %}{{ each.name }}{% else %},{{ each.name }}{% endif %}{% endfor %}">
+                            </div>
+                        </div>
+
+                        <div class="form-group"
+                             style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-1">
+                                <span style="font-size: 14px;">类型：</span>
+                            </div>
+                            <div class="col-md-11" style="padding: 0;">
+                                <select name="belong" class="selectpicker form-control" data-live-search="true"
+                                        style="display: none;">
+                                    <option value="1" {% ifequal doc_info.belong 1 %}selected{% endifequal %}>文档
+                                    </option>
+                                    <option value="2" {% ifequal doc_info.belong 2 %}selected{% endifequal %}>SHELL 脚本
+                                    </option>
+                                    <option value="3" {% ifequal doc_info.belong 3 %}selected{% endifequal %}>PYTHON 脚本
+                                    </option>
+                                    <option value="4" {% ifequal doc_info.belong 4 %}selected{% endifequal %}>BAT 脚本
+                                    </option>
+                                    <option value="5" {% ifequal doc_info.belong 5 %}selected{% endifequal %}>其它脚本
+                                    </option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="full-width">
+                        <textarea id="edit_doc_area" name="content" class="ckeditor"
+                                  placeholder="运维文档">{{ doc_info.content }}</textarea>
+                        </div>
+
+                        <!-- 设置编辑框高度 -->
+                        <script>
+                            CKEDITOR.replace('edit_doc_area', {
+                                height: 520
+                            });
+                        </script>
+
+                    </div>
+                </form>
+
+                <div class="modal-footer" style="padding-right: 15px;padding-top: 10px; padding-bottom: 10px;">
+                    <a class="btn btn-sm btn-default" data-dismiss="modal">取消</a>
+                    <a class="btn btn-sm btn-default" id="id_EditDocumentBtn">保存</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 修改文档提交 -->
+    <script>
+        $(function () {
+            //处理CKEDITOR的值
+            function CKupdate() {
+                for (instance in CKEDITOR.instances)
+                    CKEDITOR.instances[instance].updateElement();
+            }
+
+            // 提交表单
+            $('#id_EditDocumentBtn').on('click', function () {
+                CKupdate();
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'document_management:doc_edit' %}",
+                    data: $('#id_EditDocumentForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        // 这里需要csrf_token的值，而不是代码
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.href = "{% url 'document_management:doc_detail' doc_info.id %}";
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+
+    <!-- 删除文档 -->
+    <div class="modal inmodal" id="DeleteDocumentModal" tabindex="-1" role="dialog"
+         aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-dialog modal-sm" style="padding-top: 10%;">
+            <div class="modal-content">
+
+                <div class="modal-header"
+                     style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="icon-close" style="font-size: 18px;"></i>
+                    </button>
+                    <h4 class="modal-title">警告！</h4>
+                </div>
+
+                <form method="post" id="id_DeleteDocumentForm">
+                    <input type="hidden" name="doc_id" value="{{ doc_info.id }}">
+                    <div class="modal-body">
+                        <span style="font-size: 16px;color: black;">是否确定删除该文档？</span>
+                    </div>
+                </form>
+
+                <div class="modal-footer" style="padding: 10px;padding-top: 10px; padding-bottom: 10px;">
+                    <a class="btn btn-default" data-dismiss="modal" style="padding: 2px 10px;">取消</a>
+                    <a class="btn btn-default" id="id_DeleteDocumentBtn"
+                       style="padding: 2px 10px;">确定</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 删除文档 -->
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_DeleteDocumentBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'document_management:doc_del' %}",
+                    data: $('#id_DeleteDocumentForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.href = "{% url 'document_management:doc_list' doc_cate %}";
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+
+{% endblock base_content %}
+
+
+{% block base_footer_js %}
+    <script>
+        $('#EditDocumentModal').off('shown.bs.modal').on('shown.bs.modal', function (e) {
+            $(document).off('focusin.modal');
+        });
+    </script>
+{% endblock base_footer_js %}

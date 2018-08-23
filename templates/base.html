@@ -1,0 +1,744 @@
+{% load staticfiles %}
+{% load platfom_tags %}
+{% load message_tags %}
+{% load user_tags %}
+{% load host_tags %}
+{% load op_record_tags %}
+{% load online_tags %}
+<!DOCTYPE html>
+<html lang="en">
+
+
+<!-- =============================================================================== -->
+<!-- 头部开始 -->
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+    <!-- 标题 -->
+    <title>
+        {% block base_title %}
+        {% endblock base_title %}
+        | OPMS 运维管理系统
+    </title>
+
+    <!-- css 文件 -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/app.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css">
+
+    <link rel="stylesheet" href="{% static 'css/bootstrap-select.css' %}" type="text/css">
+
+    <!-- 图标格式文件 -->
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/simple-line-icons.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'css/font.css' %}" type="text/css">
+
+    <!-- js 文件 -->
+    <script src="{% static 'js/jquery-2.2.4.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/nav_menu.js' %}"></script>
+
+    <script src="{% static 'js/bootstrap-select.js' %}"></script>
+    <link href="{% static 'plugins/summernote/summernote.css' %}" rel="stylesheet">
+    <script src="{% static 'plugins/summernote/summernote.js' %}"></script>
+
+    {% block base_header_css %}
+    {% endblock base_header_css %}
+
+    {% block base_header_js %}
+    {% endblock base_header_js %}
+</head>
+<!-- 头部结束 -->
+<!-- =============================================================================== -->
+
+
+<!-- =============================================================================== -->
+<!-- 主体开始 -->
+<body style="overflow:hidden; box-sizing:border-box;">
+<div class="app app-header-fixed" id="app">
+    <div id="wrapper" class="container1">
+
+        <!-- =============================================================================== -->
+        <!-- logo 栏开始 -->
+        <div class="app-header navbar">
+
+            <!-- logo & title -->
+            <div class="navbar-header bg-black">
+                <a class="navbar-brand text-lt" style="color: white !important;">
+                    <i class="glyphicon glyphicon-send"></i>
+                    <span class="hidden-folded m-l-xs">OPMS</span>
+                </a>
+            </div>
+
+            <!-- logo 栏其他 -->
+            <div class="collapse pos-rlt navbar-collapse box-shadow bg-white-only">
+                <!-- logo 栏(左边)  侧边和头像 -->
+                <div class="nav navbar-nav">
+                    <!-- 收起侧边栏 -->
+                    <a class="btn no-shadow navbar-btn" data-toggle="class:app-aside-folded" data-target=".app">
+                        <i class="fa fa-dedent fa-fw text"></i>
+                        <i class="fa fa-indent fa-fw text-active"></i>
+                    </a>
+                </div>
+
+                <!-- logo 栏(左边)  功能菜单 -->
+                <ul class="nav navbar-nav">
+                    <li class="dropdown pos-stc">
+                        <a data-toggle="dropdown" class="dropdown-toggle">
+                            <span>功能菜单</span>
+                            <span class="caret"></span>
+                        </a>
+
+                        <!-- 下拉菜单内容 -->
+                        <div class="dropdown-menu wrapper w-full bg-white">
+                            <div class="row">
+                                <!-- 运维管理 -->
+                                <div class="col-sm-2">
+                                    <div class="m-l-xs m-t-xs m-b-xs font-bold" style="padding-bottom: 10px;">运维管理</div>
+                                    <!-- 第一列 -->
+                                    <div class="col-xs-6" style="font-size: 12px;">
+                                        <ul class="list-unstyled l-h-2x">
+                                            <li>
+                                                <a href="{% url 'host_management:host_list' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>主机
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{% url 'host_management:db_list' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>数据库
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{% url 'host_management:net_dvice_list' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>网络设备
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{% url 'host_management:port_port_list' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>端口映射
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{% url 'host_management:domain_resolve_list' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>域名解析
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="m-l-xs m-t-xs m-b-xs font-bold" style="padding-bottom: 10px;">线上管理</div>
+                                    <!-- 第一列 -->
+                                    <div class="col-xs-6" style="font-size: 12px;">
+                                        <ul class="list-unstyled l-h-2x">
+                                            <li>
+                                                <a href="{% url 'online_management:tr_list' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>故障列表
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{% url 'online_management:dep_list' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>发布列表
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="m-l-xs m-t-xs m-b-xs font-bold" style="padding-bottom: 10px;">文档管理</div>
+                                    <!-- 第一列 -->
+                                    <div class="col-xs-6" style="font-size: 12px;">
+                                        <ul class="list-unstyled l-h-2x">
+                                            <li>
+                                                <a href="{% url 'document_management:doc_list' 'document' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>技术文档
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{% url 'document_management:doc_list' 'script' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>运维脚本
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="m-l-xs m-t-xs m-b-xs font-bold" style="padding-bottom: 10px;">用户管理</div>
+                                    <!-- 第一列 -->
+                                    <div class="col-xs-6" style="font-size: 12px;">
+                                        <ul class="list-unstyled l-h-2x">
+                                            <li>
+                                                <a href="{% url 'users:user_info' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>个人资料
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <a href="{% url 'users:user_list' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>用户列表
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="m-l-xs m-t-xs m-b-xs font-bold" style="padding-bottom: 10px;">帮助反馈</div>
+                                    <!-- 第一列 -->
+                                    <div class="col-xs-6" style="font-size: 12px;">
+                                        <ul class="list-unstyled l-h-2x">
+                                            <li>
+                                                <a href="{% url 'users:help' %}">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>反馈信息
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <div class="m-l-xs m-t-xs m-b-xs font-bold" style="padding-bottom: 10px;">其它功能</div>
+                                    <!-- 第一列 -->
+                                    <div class="col-xs-6" style="font-size: 12px;">
+                                        <ul class="list-unstyled l-h-2x">
+                                            <li>
+                                                <a href="https://github.com/PythonTra1nee/OPMS_v3" target="_blank">
+                                                    <i class="fa fa-fw fa-angle-right text-muted m-r-xs"></i>敬请期待
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </li>
+                </ul>
+
+
+                <!-- logo 栏(右边)  提醒图标 -->
+                <ul class="nav navbar-nav navbar-right">
+
+                    <li class="dropdown">
+                        <a href="#" data-toggle="dropdown" class="dropdown-toggle">
+                            <i class="icon-bell fa-fw" style="font-size: 14px;"></i>
+                            {% ifnotequal request.user.id|Get_UnreadMsg_Nums 0 %}
+                                <span class="badge badge-sm up bg-danger pull-right-xs">{{ request.user.id|Get_UnreadMsg_Nums }}</span>
+                            {% endifnotequal %}
+                        </a>
+
+                        <!-- 提醒图标的下拉菜单 -->
+                        <div class="dropdown-menu w-xl animated fadeInUp">
+                            <div class="panel bg-white">
+                                <div class="panel-heading" style="background-color: #1c2b36;color: white;">
+                                    <strong>你有 <span
+                                            style="color: orangered;">{{ request.user.id|Get_UnreadMsg_Nums }}</span>
+                                        条未读信息</strong>
+                                </div>
+
+                                <!-- 消息列表 -->
+                                {% if request.user.id|Get_Unread_Messages %}
+                                    {% for each in request.user.id|Get_Unread_Messages %}
+                                        <div class="list-group" style="padding: 10px 20px; font-size: 12px;">
+                                            <a class="media"
+                                               href="{% url 'message:message_detail' 'message_list' each.message.id %}">
+                                                <div class="media-left">
+                                                    <img class="img-circle thumb-sm"
+                                                         src="{{ MEDIA_URL }}{{ each.message.send_user.avatar }}">
+                                                </div>
+                                                <div class="media-body">
+                                                    <div class="text-nowrap">
+                                                        <b>{{ each.message.send_user.chinese_name }}：</b>{{ each.message.subject|slice:"10" }}...
+                                                    </div>
+                                                    <small class="text-muted">{{ each.message.update_time }}</small>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="list-group" style="padding: 10px 20px; font-size: 12px;">
+                                        <p style="margin-bottom: 0;">暂无未读消息</p>
+                                    </div>
+                                {% endif %}
+
+
+                                <!-- 下边功能 -->
+                                <div class="panel-footer text-sm" style="background-color: #009688; font-size: 12px;">
+                                    <a href="#" class="pull-right">
+                                        <i style="color: white;" class="fa fa-chevron-right"></i>
+                                    </a>
+                                    <a href="{% url 'message:message_list' 'message_list' %}" style="color: white;">查看所有消息</a>
+                                </div>
+
+                            </div>
+                        </div>
+                    </li>
+
+                    <!-- logo 栏(右边)  用户头像 -->
+                    <li class="dropdown">
+                        <a data-toggle="dropdown" class="dropdown-toggle clear">
+                    <span class="thumb-sm avatar pull-right m-t-n-sm m-b-n-sm m-l-sm">
+                        <img src="{{ MEDIA_URL }}{{ request.user.avatar }}" style="width: 40px; height: 40px;">
+                        <i class="on md b-white bottom"></i>
+                    </span>
+                            <span class="hidden-sm hidden-md">{{ request.user.chinese_name }}</span>
+                            <i class="caret"></i>
+                        </a>
+
+                        <!-- 头像下拉菜单 -->
+                        <ul class="dropdown-menu animated fadeInRight w" style="font-size: 12px;">
+                            <li class="wrapper b-b m-b-sm bg-light m-t-n-xs" style="background-color: #1c2b36"></li>
+                            <li>
+                                <a href="{% url 'users:user_info' %}">
+                                    <span>用户资料</span>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="{% url 'users:help' %}">帮助反馈</a>
+                            </li>
+
+                            <li class="divider"></li>
+                            <li>
+                                <a href="{% url 'users:logout' %}">注销</a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <!-- logo 栏(右边)  用户列表 -->
+                    <li class="dropdown">
+                        <a href="#" data-toggle="dropdown" class="dropdown-toggle">
+                            <i class="fa fa-ellipsis-v" style="font-size: 14px;"></i>
+                        </a>
+
+                        <!-- 用户列表 -->
+                        <div class="dropdown-menu w-xl animated fadeInUp" style="width: 250px;">
+                            <div class="panel bg-white">
+                                <div class="panel-heading" style="background-color: #1c2b36; color: white;">
+                                    <strong>在线好友</strong>
+                                </div>
+
+                                {% Get_Friends_List as friend_list %}
+                                {% for each in friend_list %}
+                                    <!-- 用户 -->
+                                    <div class="list-group bg-trans" id="panel-user" style="overflow-y: auto;">
+                                        <a href="{% url 'users:other_user_info' each.id %}" class="list-group-item">
+                                            <div class="media-left pos-rel">
+                                                <img class="img-circle thumb-sm"
+                                                     src="{{ MEDIA_URL }}{{ each.avatar }}">
+                                                <i class="badge badge-success"></i>
+                                            </div>
+                                            <div class="media-body">
+                                                <p style="margin-bottom: 0;">{{ each.chinese_name }}
+                                                    {% ifnotequal each.id request.user.id %}
+                                                        <i class="fa fa-envelope-o pull-right"></i>
+                                                    {% endifnotequal %}
+                                                </p>
+                                                <small class="text-muted">{{ each.position.department.name }}
+                                                    - {{ each.position.name }}</small>
+                                            </div>
+                                        </a>
+                                    </div>
+                                {% endfor %}
+
+                                <!-- 下边功能 -->
+                                <div class="panel-footer text-sm" style="font-size: 12px;background-color: #009688;">
+                                    <a href="{% url 'users:user_list' %}" class="pull-right" style="color: white;">
+                                        <i class="fa fa-chevron-right"></i>
+                                    </a>
+                                    <a href="{% url 'users:user_list' %}" style="color: white;">查看所有用户</a>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+        <!-- logo 栏结束 -->
+        <!-- =============================================================================== -->
+
+
+        <!-- =============================================================================== -->
+        <!-- 侧边菜单栏开始 -->
+        <div class="app-aside hidden-xs bg-black" style="padding-top: 10px;">
+            <div class="aside-wrap">
+                <div class="navi-wrap">
+
+                    <!-- 点击显示的用户大头像 -->
+                    <div class="clearfix text-center" id="aside-user">
+                        <div class="dropdown wrapper">
+                            <!-- 大头像 -->
+                            <a href="#">
+                        <span class="thumb-lg w-auto-folded avatar m-t-sm">
+                            <a href="{% url 'users:user_info' %}">
+                                <img src="{{ MEDIA_URL }}{{ request.user.avatar }}" class="img-circle" name="big_avatar"
+                                     style="width: 96px; height: 96px;">
+                            </a>
+                        </span>
+                            </a>
+
+                            <!-- 姓名职位 -->
+                            <a data-toggle="dropdown" class="dropdown-toggle hidden-folded">
+                        <span class="clear">
+                            <span class="block m-t-sm">
+                                <strong class="font-bold text-lt"
+                                        style="color: LightGrey !important;">{{ request.user.chinese_name }} [ {{ request.user.position.name }} ]</strong>
+                                <b class="caret"></b>
+                            </span>
+                        </span>
+                            </a>
+
+                            <!-- 头像下拉菜单 -->
+                            <ul class="dropdown-menu animated fadeInRight w hidden-folded" style="font-size: 12px;">
+                                <li class="wrapper b-b m-b-sm bg-info m-t-n-xs"></li>
+                                <li>
+                                    <a href="{% url 'users:user_info' %}">用户资料</a>
+                                </li>
+                                <li>
+                                    <a href="{% url 'users:help' %}">
+                                        <span>帮助反馈</span>
+                                    </a>
+                                </li>
+                                <li class="divider"></li>
+                                <li>
+                                    <a href="{% url 'users:logout' %}">
+                                        <span>注销</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- 侧边功能栏 -->
+                    <nav class="navi">
+                        <ul class="nav">
+                            <!-- 一级菜单 -->
+                            <li {% ifequal web_chose_left_1 'index' %}class="active"{% endifequal %}>
+                                <a href="{% url 'users:index' %}">
+                                    <i class="fa fa-dashboard"></i>
+                                    <span style="font-size: 13px; ">Dashboard</span>
+                                </a>
+                            </li>
+
+                            <li {% ifequal web_chose_left_1 'platform' %}class="active"{% endifequal %}>
+                                <a>
+                                    <i class="pull-right fa fa-angle-right" style="width: 5px;font-weight: bolder;"
+                                       id="coll_tag_plat"></i>
+                                    <i class="fa fa-desktop"></i>
+                                    <span style="font-size: 13px; ">账户管理</span>
+                                </a>
+
+                                <!-- 二级菜单 -->
+                                <ul class="nav nav-sub dk" style="font-size: 12px;">
+                                    <li {% ifequal web_chose_left_2 'company' %}class="active"{% endifequal %}>
+                                        <a href="{% url 'platform_management:platform_company_list' %}">
+                                            <span>内部平台</span>
+                                        </a>
+                                    </li>
+
+                                    <li {% ifequal web_chose_left_2 'ops' %}class="active"{% endifequal %}>
+                                        <a href="{% url 'platform_management:platform_ops_list' %}">
+                                            <span>运维平台</span>
+                                        </a>
+                                    </li>
+
+                                    <li {% ifequal web_chose_left_2 'other' %}class="active"{% endifequal %}>
+                                        <a href="{% url 'platform_management:platform_other_list' %}">
+                                            <span>其它平台</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            {% if request.user.role > 1 %}
+                                <li {% ifequal web_chose_left_1 'basic_setting' %}class="active"{% endifequal %}>
+                                    <a>
+                                        <i class="pull-right fa fa-angle-right"
+                                           style="width: 5px;font-weight: bolder;" id="coll_tag_ops"></i>
+                                        <i class="glyphicon glyphicon-cog"></i>
+                                        <span style="font-size: 13px; ">全局配置</span>
+                                    </a>
+
+                                    <!-- 二级菜单 -->
+                                    <ul class="nav nav-sub dk" style="font-size: 12px;">
+                                        <li {% ifequal web_chose_left_2 'os' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'host_management:os_List' %}">
+                                                <span>系统配置</span>
+                                            </a>
+                                        </li>
+
+                                        <li {% ifequal web_chose_left_2 'idc' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'host_management:idc_List' %}">
+                                                <span>机房配置</span>
+                                            </a>
+                                        </li>
+
+                                        <li {% ifequal web_chose_left_2 'project' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'host_management:project_List' %}">
+                                                <span>项目配置</span>
+                                            </a>
+                                        </li>
+
+                                        <li {% ifequal web_chose_left_2 'env' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'host_management:openv_List' %}">
+                                                <span>环境配置</span>
+                                            </a>
+                                        </li>
+
+                                        <li {% ifequal web_chose_left_2 'use' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'host_management:use_List' %}">
+                                                <span>用途配置</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+
+
+                            {% if request.user.role > 1 %}
+                                <!-- 主机管理 -->
+                                <li {% ifequal web_chose_left_1 'host_management' %}class="active"{% endifequal %}>
+                                    <a>
+                                        <i class="pull-right fa fa-angle-right"
+                                           style="width: 5px;font-weight: bolder;" id="coll_tag_ops"></i>
+                                        <i class="glyphicon glyphicon-console"></i>
+                                        <span style="font-size: 13px; ">主机管理</span>
+                                    </a>
+
+                                    <!-- 二级菜单 -->
+                                    <ul class="nav nav-sub dk" style="font-size: 12px;">
+                                        <li {% ifequal web_chose_left_2 'host' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'host_management:host_list' %}">
+                                                <span>主机管理</span>
+                                            </a>
+                                        </li>
+
+                                        <li {% ifequal web_chose_left_2 'database' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'host_management:db_list' %}">
+                                                <span>数据管理</span>
+                                            </a>
+                                        </li>
+
+                                        <li {% ifequal web_chose_left_2 'net_dvice' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'host_management:net_dvice_list' %}">
+                                                <span>网络设备</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+
+                            {% if request.user.role > 1 %}
+                                <!-- 主机管理 -->
+                                <li {% ifequal web_chose_left_1 'port_domain' %}class="active"{% endifequal %}>
+                                    <a>
+                                        <i class="pull-right fa fa-angle-right"
+                                           style="width: 5px;font-weight: bolder;" id="coll_tag_ops"></i>
+                                        <i class="glyphicon glyphicon-globe"></i>
+                                        <span style="font-size: 13px; ">端口域名</span>
+                                    </a>
+
+                                    <!-- 二级菜单 -->
+                                    <ul class="nav nav-sub dk" style="font-size: 12px;">
+                                        <li {% ifequal web_chose_left_2 'port_port' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'host_management:port_port_list' %}">
+                                                <span>端口映射</span>
+                                            </a>
+                                        </li>
+
+                                        <li {% ifequal web_chose_left_2 'domain_name' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'host_management:domain_name_list' %}">
+                                                <span>域名管理</span>
+                                            </a>
+                                        </li>
+
+                                        <li {% ifequal web_chose_left_2 'domain_resolve' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'host_management:domain_resolve_list' %}">
+                                                <span>域名解析</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+
+                            {% if request.user.role > 1 %}
+                                <!-- 二级菜单 -->
+                                <li {% ifequal web_chose_left_1 'online_management' %}class="active"{% endifequal %}>
+                                    <a>
+                                        <i class="pull-right fa fa-angle-right" style="width: 5px;font-weight: bolder;"
+                                           id="coll_tag_doc"></i>
+                                        <i class="fa fa-bar-chart"></i>
+                                        <span style="font-size: 13px; ">运维管理</span>
+                                    </a>
+
+                                    <!-- 二级菜单 -->
+                                    <ul class="nav nav-sub dk" style="font-size: 12px;">
+                                        <li {% ifequal web_chose_left_2 'trouble' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'online_management:tr_list' %}">
+                                                <span>故障管理</span>
+                                            </a>
+                                        </li>
+
+                                        <li {% ifequal web_chose_left_2 'deploy' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'online_management:dep_list' %}">
+                                                <span>发布管理</span>
+                                            </a>
+                                        </li>
+
+                                        <li {% ifequal web_chose_left_2 'op_event' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'online_management:opevent_list' %}">
+                                                <span>运维事件</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+
+                            <!-- 二级菜单 -->
+                            {% if request.user.role > 1 %}
+                                <li {% ifequal web_chose_left_1 'document_management' %}class="active"{% endifequal %}>
+                                    <a>
+                                        <i class="pull-right fa fa-angle-right" style="width: 5px;font-weight: bolder;"
+                                           id="coll_tag_doc"></i>
+                                        <i class="fa fa-book"></i>
+                                        <span style="font-size: 13px; ">文档管理</span>
+                                    </a>
+
+                                    <!-- 二级菜单 -->
+                                    <ul class="nav nav-sub dk" style="font-size: 12px;">
+                                        <li {% ifequal web_chose_left_2 'document' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'document_management:doc_list' 'document' %}">
+                                                <span>普通文档</span>
+                                            </a>
+                                        </li>
+
+                                        <li {% ifequal web_chose_left_2 'script' %}class="active"{% endifequal %}>
+                                            <a href="{% url 'document_management:doc_list' 'script' %}">
+                                                <span>运维脚本</span>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </li>
+                            {% endif %}
+
+                            <!-- 二级菜单 -->
+                            <li {% ifequal web_chose_left_1 'user_management' %}class="active"{% endifequal %}>
+                                <a>
+                                    <i class="pull-right fa fa-angle-right" style="width: 5px;font-weight: bolder;"
+                                       id="coll_tag_doc"></i>
+                                    <i class="fa fa-users"></i>
+                                    <span style="font-size: 13px; ">用户管理</span>
+                                </a>
+
+                                <!-- 二级菜单 -->
+                                <ul class="nav nav-sub dk" style="font-size: 12px;">
+                                    <li {% ifequal web_chose_left_2 'user_message' %}class="active"{% endifequal %}>
+                                        <a href="{% url 'message:message_list' 'message_list' %}">
+                                            {% ifnotequal request.user.id|Get_UnreadMsg_Nums 0 %}
+                                                <b class="badge bg-info pull-right">{{ request.user.id|Get_UnreadMsg_Nums }}</b>
+                                            {% endifnotequal %}
+                                            <span>用户消息</span>
+                                        </a>
+                                    </li>
+
+                                    <li {% ifequal web_chose_left_2 'user_info' %}class="active"{% endifequal %}>
+                                        <a href="{% url 'users:user_info' %}">
+                                            <span>用户资料</span>
+                                        </a>
+                                    </li>
+
+                                    <li {% ifequal web_chose_left_2 'user_list' %}class="active"{% endifequal %}>
+                                        <a href="{% url 'users:user_list' %}">
+                                            <span>用户列表</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <!-- 二级菜单 -->
+                            <li {% ifequal web_chose_left_1 'log_management' %}class="active"{% endifequal %}>
+                                <a>
+                                    <i class="pull-right fa fa-angle-right" style="width: 5px;font-weight: bolder;"
+                                       id="coll_tag_doc"></i>
+                                    <i class="fa fa-file-text-o"></i>
+                                    <span style="font-size: 13px; ">日志管理</span>
+                                </a>
+
+                                <!-- 二级菜单 -->
+                                <ul class="nav nav-sub dk" style="font-size: 12px;">
+                                    <li {% ifequal web_chose_left_2 'op_log' %}class="active"{% endifequal %}>
+                                        <a href="{% url 'host_management:host_op_record' %}">
+                                            <span>用户配置</span>
+                                        </a>
+                                    </li>
+
+                                    <li {% ifequal web_chose_left_2 'user_log' %}class="active"{% endifequal %}>
+                                        <a href="{% url 'users:op_record' %}">
+                                            <span>用户操作</span>
+                                        </a>
+                                    </li>
+
+                                    <li {% ifequal web_chose_left_2 'login_log' %}class="active"{% endifequal %}>
+                                        <a href="{% url 'users:login_record' %}">
+                                            <span>用户登录</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <!-- 一级菜单 -->
+                            <li {% ifequal web_chose_left_1 'ask_help' %}class="active"{% endifequal %}>
+                                <a href="{% url 'users:help' %}">
+                                    <i class="icon-question"></i>
+                                    <span style="font-size: 13px;">帮助反馈</span>
+                                </a>
+                            </li>
+
+                        </ul>
+                    </nav>
+
+                </div>
+            </div>
+        </div>
+        <!-- 侧边菜单栏结束 -->
+        <!-- =============================================================================== -->
+
+
+        <!-- =============================================================================== -->
+        <!-- 内容主体开始 -->
+        {% block base_content %}
+        {% endblock base_content %}
+        <!-- 内容主体结束 -->
+        <!-- =============================================================================== -->
+
+
+        <!-- =============================================================================== -->
+        <!-- 页面底部开始 -->
+        <div class="app-footer wrapper b-t bg-light">
+            <span class="pull-right">v 3.1</span>
+            <a href="https://github.com/PythonTra1nee/OPMS_v3" target="_blank">© 2018 Copyright OPMS | More info</a>
+        </div>
+        <!-- 页面底部结束 -->
+        <!-- =============================================================================== -->
+    </div>
+
+    {% block base_footer_html %}
+    {% endblock base_footer_html %}
+
+    {% block base_footer_css %}
+    {% endblock base_footer_css %}
+
+    {% block base_footer_js %}
+    {% endblock base_footer_js %}
+</div>
+</body>
+<!-- 主体结束 -->
+<!-- =============================================================================== -->
+
+
+</html>

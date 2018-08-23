@@ -1,0 +1,119 @@
+{% extends 'users/user_base.html' %}
+{% load staticfiles %}
+
+
+{% block base_title %}
+    修改邮箱
+{% endblock base_title %}
+
+
+{% block user_base_body %}
+    <!-- 右边主体 -->
+    <div class="col-sm-10" style="padding-left: 0; padding-right: 0;">
+        <div class="panel panel-default" id="body-content">
+
+            <div class="panel-heading">
+                <div style="display: block; border-left: 5px solid #1c2b36; padding-left: 10px; font-size: 20px; font-weight: bolder; line-height: 25px;color: #1c2b36;">
+                    修改邮箱
+                </div>
+            </div>
+
+
+            <div class="row" style="margin-top: 15%;">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <div style="padding-left: 10%;padding-right: 10%;">
+                        <p class="m-t"></p>
+
+                        <p style="margin-bottom: 0; font-size: 15px;">
+                            请输入你想修改后的邮箱地址！
+                        </p>
+
+                        <div class="row">
+                            <div class="col-lg-12">
+                                <form class="m-t" role="form" action="" method="post" id="id_SendChangeEmailCodeForm">
+                                    <div class="form-group">
+                                        <input name="email" class="form-control" placeholder="邮箱地址"
+                                               required="">
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="form-group col-md-8">
+                                            <input name="code" class="form-control" placeholder="验证码"
+                                                   required="">
+                                        </div>
+
+                                        <div class="form-group col-md-4">
+                                            <a class="btn full-width btn-black block" style="color: white;" id="id_SendChangeEmailCodeBtn">获取验证码</a>
+                                        </div>
+                                    </div>
+
+                                    <a class="btn btn-black block full-width m-b" style="color: white;" id="id_ChangeEmailBtn">确认修改</a>
+                                </form>
+                            </div>
+                        </div>
+                        <p class="m-t"></p>
+                    </div>
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+        </div>
+    </div>
+{% endblock user_base_body %}
+
+
+{% block base_footer_js %}
+    <!-- 发送验证码 -->
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_SendChangeEmailCodeBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'users:user_email_code' %}",
+                    data: $('#id_SendChangeEmailCodeForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.alert(data.msg);
+                            document.getElementById('id_SendChangeEmailCodeBtn').innerHTML="已发送";
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+
+    <!-- 修改用户邮箱 -->
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_ChangeEmailBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'users:change_user_email' %}",
+                    data: $('#id_SendChangeEmailCodeForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.alert(data.msg);
+                            window.location.href='{% url 'users:user_info' %}';
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+{% endblock base_footer_js %}

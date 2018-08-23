@@ -1,0 +1,164 @@
+/* 内容主体高度 */
+#panel-content {
+    height: calc(100vh - 120px);
+}
+
+/* 用户列表高度 */
+#panel-user {
+    max-height: calc(100vh - 120px);
+}
+
+/* 页码高度 */
+#table_content {
+    height: calc(100vh - 220px);
+}
+
+/* 聊天框高度 */
+#message_content {
+    height: calc(100vh - 395px);
+}
+
+/* 聊天框高度 */
+#comment_body {
+    height: calc(100vh - 375px);
+}
+
+/* 聊天框高度 */
+#comment_content {
+    height: calc(100vh - 435px);
+}
+
+/* 主机详情主体高度 */
+#hostinfo-content {
+    height: calc(100vh - 240px);
+}
+
+#body-content {
+    height: calc(100vh - 115px);
+}
+
+/*====================================================================================================================*/
+/*错误页面*/
+#errorpage {
+    width: 900px;
+    text-align: center;
+    padding: 80px 0;
+    margin: 0 auto;
+    height: 360px;
+}
+
+/*字体高度*/
+#errorpage p {
+    padding-top: 50px;
+}
+
+/*按钮属性*/
+#errorpage .err_bt {
+    background: #fe3a3b;
+    padding: 9px 160px 11px;
+    color: #fff;
+    border: 0;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+#errorpage .tfans_error .tfans {
+    float: left;
+}
+
+#errorpage .tfans_error .errortans {
+    margin: 0;
+    text-align: left;
+    float: left;
+    z-index: 5;
+    height: 300px;
+    position: relative;
+    padding: 80px 0 0 24px;
+}
+
+/*字体大小*/
+#errorpage .tfans_error .errortans p b {
+    font-size: 38px;
+}
+
+/*404图片高度*/
+#errorpage .tfans_error .errortans div {
+    margin-top: 30px;
+}
+
+/*超人图片*/
+#errorpage .logo {
+    display: inline-block;
+    float: left;
+    height: 303px;
+    width: 256px;
+}
+
+/*404图片*/
+#errorpage .e404 {
+    display: inline-block;
+    position: absolute;
+    top: -60px;
+    left: 400px;;
+    height: 180px;
+    width: 170px;
+}
+
+/*====================================================================================================================*/
+/*登录页面*/
+#login_board {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 100px 20px 20px 20px;
+}
+
+/*登录框*/
+#login_box {
+    background-color: #ffffff;
+    color: inherit;
+    padding: 15px 20px 20px 20px;
+    border-color: #e7eaec;
+    border-image: none;
+    border-style: solid solid none;
+    border-width: 1px 0;
+}
+
+/*登录按钮*/
+.full-width {
+    width: 100% !important;
+}
+
+/*忘记密码页面*/
+#forget_board {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 100px 20px 20px 20px;
+}
+
+/*忘记密码框*/
+#forget_box {
+    background-color: #ffffff;
+    color: inherit;
+    padding: 15px 20px 20px 20px;
+    border-color: #e7eaec;
+    border-image: none;
+    border-style: solid solid none;
+    border-width: 1px 0;
+}
+
+/*====================================================================================================================*/
+#user_action_record {
+    height: calc(100vh - 190px);
+}
+
+#doc_show_area {
+    height: calc(100vh - 240px);
+}
+
+#more_content {
+    height: calc((100vh - 330px) / 3);
+}
+
+#chart_content {
+    height: calc((100vh - 325px) / 2);
+}

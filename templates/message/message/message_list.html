@@ -1,0 +1,298 @@
+{% extends 'message/message_base.html' %}
+{% load staticfiles %}
+{% load message_tags %}
+
+{% block base_title %}
+    {{ title }}
+{% endblock base_title %}
+
+{% block message_content %}
+    <!-- 右边消息列表 -->
+    <div class="col-sm-10" style="padding-left: 0; padding-right: 0;">
+        <div class="panel panel-default" id="panel-content">
+
+            <div class="panel-heading">
+                <div style="display: block; border-left: 5px solid #1c2b36; padding-left: 10px; font-size: 20px; font-weight: bolder; line-height: 25px;color: #1c2b36;">
+                    {{ title }}{% ifnotequal keyword '' %}&nbsp;&nbsp;
+                        ："{{ keyword }}" 关键字搜索结果{% endifnotequal %}
+                </div>
+            </div>
+
+            <div class="panel-body" id="table_content">
+
+                <div>
+                    <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#AddAllReadModal">全部标记为已读</a>
+                    <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#AddCheckReadModal">选中标记为已读</a>
+
+                    <!-- 功能 -->
+                    <form class="navbar-form pull-right " role="search" style="margin-top: 0;">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <input type="text" name="keyword"
+                                       class="form-control input-sm bg-light no-border rounded "
+                                       placeholder="关键词查找记录" style="width: 150px;">
+                                <span class="input-group-btn">
+                                            <button type="submit" class="btn btn-sm bg-auto rounded">
+                                                <i class="fa fa-search"></i>
+                                            </button>
+                                        </span>
+                            </div>
+                        </div>
+                    </form>
+
+                    <span style="font-size: 14px; padding-top: 5px;" class="pull-right">共 <b
+                            style="color: orangered">{{ msg_nums }}</b> 条</span>
+                </div>
+
+                <hr style="margin-top: 15px; margin-bottom: 0;">
+
+                <!-- 消息列表 -->
+                <div class="table-responsive">
+                    <table class="table no-border" style="font-size: 14px;">
+                        <thead>
+                        <tr>
+                            <th class="text-center" width="60">#</th>
+                            <th class="text-center" width="100">星标</th>
+                            <th width="100">发送者</th>
+                            <th class="text-center" width="100">消息类型</th>
+                            <th class="text-center" width="100">状态</th>
+                            <th>消息标题</th>
+                            <th width="200">发送时间</th>
+                            <th width="200">更新时间</th>
+                            <th class="text-center" width="100">操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+
+                        {% for each_msg in msgs.object_list %}
+                            <form id="id_CheckMessageForm">
+                                <tr {% if not each_msg.is_read %} style="background-color: lightcyan;" {% endif %}>
+                                    <td class="text-center"><input type="checkbox" name="msg_check"
+                                                                   value="{{ each_msg.message.id }}"></td>
+                                    <td class="text-center">
+                                        {% if each_msg.is_star %}
+                                            <a id="id_MessageStarBtn{{ each_msg.id }}"><i class="fa fa-star"
+                                                                                          style="color: orangered;"></i></a>
+                                        {% else %}
+                                            <a id="id_MessageStarBtn{{ each_msg.id }}"><i class="fa fa-star-o"></i></a>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'users:other_user_info' each_msg.message.send_user.id %}">{{ each_msg.message.send_user.chinese_name }}</a>
+                                    </td>
+                                    <td class="text-center">{{ each_msg.message.get_ms_type_display }}</td>
+                                    <td class="text-center">
+                                        {% if each_msg.is_read %}
+                                            <i class="fa fa-check-circle" style="color: green"></i>
+                                        {% else %}
+                                            <i class="fa fa-times-circle" style="color: grey;"></i>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <a href="{% url 'message:message_detail' web_chose_middle each_msg.message.id %}"
+                                           style="color: #003366;">
+                                            {% if each_msg.message.id|Get_Replay_Nums %}<i class="fa fa-reply"></i>
+                                                &nbsp;&nbsp;&nbsp;&nbsp;回复：{% endif %}
+                                            {{ each_msg.message.subject }}</a>
+                                    </td>
+                                    <td>{{ each_msg.message.add_time }}</td>
+                                    <td>{{ each_msg.message.update_time }}</td>
+                                    <td class="text-center">
+                                        <a href="{% url 'message:message_detail' web_chose_middle each_msg.message.id %}"
+                                           class="btn btn-xs" style="background-color: #003366;color: white;">
+                                            查看更多
+                                        </a>
+                                    </td>
+                                </tr>
+                            </form>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+
+            <!-- 页码 -->
+            <div class="panel-footer" style="padding-top: 0; padding-bottom: 0;">
+                <div class="text-center">
+                    <ul class="pagination" style="margin-top: 10px; margin-bottom: 10px;">
+
+                        <!-- 上一页 -->
+                        {% if msgs.has_previous %}
+                            <li><a href="?{{ msgs.previous_page_number.querystring }}">上一页<span
+                                    class="sr-only"></span></a></li>
+                            <li><a href="?{{ msgs.previous_page_number.querystring }}">&laquo;<span
+                                    class="sr-only"></span></a></li>
+                        {% endif %}
+
+                        <!-- 页码 -->
+                        {% for page in msgs.pages %}
+                            {% if page %}
+                                <!-- 当前页 -->
+                                {% ifequal page msgs.number %}
+                                    <li class="active"><a href="?page={{ page }}">{{ page }}<span
+                                            class="sr-only">(current)</span></a></li>
+                                    <!-- 其它页 -->
+                                {% else %}
+                                    <li><a href="?page={{ page }}">{{ page }}<span class="sr-only"></span></a></li>
+                                {% endifequal %}
+                                <!-- 省略页 -->
+                            {% else %}
+                                <li><a href="">...<span class="sr-only"></span></a></li>
+                            {% endif %}
+                        {% endfor %}
+
+                        <!-- 下一页 -->
+                        {% if msgs.has_next %}
+                            <li><a href="?{{ msgs.next_page_number.querystring }}">&raquo;<span
+                                    class="sr-only"></span></a></li>
+                            <li><a href="?{{ msgs.next_page_number.querystring }}">下一页<span
+                                    class="sr-only"></span></a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock message_content %}
+
+
+{% block base_footer_html %}
+    {% for each_msg in msgs.object_list %}
+        <script>
+            $(function () {
+                // 提交表单
+                $('#id_MessageStarBtn{{ each_msg.id }}').on('click', function () {
+                    $.ajax({
+                        cache: false,
+                        type: "POST",
+                        url: "{% url 'message:message_star' %}",
+                        data: {'msg_id': {{ each_msg.message.id }}},
+                        async: true,
+                        beforeSend: function (xhr, settings) {
+                            xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                        },
+                        success: function (data) {
+                            if (data.status == 'success') {
+                                window.location.reload();
+                            } else if (data.status == 'failed') {
+                                window.alert(data.msg);
+                            }
+                        }
+                    });
+                });
+            })
+        </script>
+    {% endfor %}
+
+
+
+    <!-- 所有 -->
+    <div class="modal inmodal" id="AddAllReadModal" tabindex="-1" role="dialog" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-dialog modal-sm" style="padding-top: 10%;">
+            <div class="modal-content">
+
+                <div class="modal-header" style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="icon-close" style="font-size: 18px;"></i>
+                    </button>
+                    <h4 class="modal-title">警告！</h4>
+                </div>
+
+                <form method="get">
+                    <div class="modal-body">
+                        <span style="font-size: 16px;color: black;">是否标记所有信息为已读？</span>
+                    </div>
+                </form>
+
+                <div class="modal-footer" style="padding: 10px;padding-top: 10px; padding-bottom: 10px;">
+                    <a class="btn btn-default" data-dismiss="modal" style="padding: 2px 10px;">取消</a>
+                    <a class="btn btn-default" style="padding: 2px 10px;" id="id_AddAllReadBtn">确定</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 选择 -->
+    <div class="modal inmodal" id="AddCheckReadModal" tabindex="-1" role="dialog" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-dialog modal-sm" style="padding-top: 10%;">
+            <div class="modal-content">
+
+                <div class="modal-header" style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="icon-close" style="font-size: 18px;"></i>
+                    </button>
+                    <h4 class="modal-title">警告！</h4>
+                </div>
+
+                <form method="get">
+                    <div class="modal-body">
+                        <span style="font-size: 16px;color: black;">是否标记选择信息为已读？</span>
+                    </div>
+                </form>
+
+                <div class="modal-footer" style="padding: 10px;padding-top: 10px; padding-bottom: 10px;">
+                    <a class="btn btn-default" data-dismiss="modal" style="padding: 2px 10px;">取消</a>
+                    <a class="btn btn-default" style="padding: 2px 10px;" id="id_AddCheckReadBtn">确定</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_AddAllReadBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'message:message_add_all_read' %}",
+                    data: $("input[name='msg_check']:checked").serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_AddCheckReadBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'message:message_add_read' %}",
+                    data: $("input[name='msg_check']:checked").serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+{% endblock base_footer_html %}
+
+

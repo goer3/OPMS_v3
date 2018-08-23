@@ -1,0 +1,145 @@
+{% extends 'users/user_base.html' %}
+{% load staticfiles %}
+{% load user_tags %}
+
+
+{% block base_title %}
+    用户头像
+{% endblock base_title %}
+
+{% block base_header_css %}
+    <style>
+        .chose_pic img {
+            border: 2px solid #fff;
+        }
+    </style>
+{% endblock base_header_css %}
+
+
+{% block user_base_body %}
+    <!-- 右边主体 -->
+    <div class="col-sm-10" style="padding-left: 0; padding-right: 0;">
+        <div class="panel panel-default" id="body-content">
+            <div class="panel-heading">
+                <div style="display: block; border-left: 5px solid #1c2b36; padding-left: 10px; font-size: 20px; font-weight: bolder; line-height: 25px;color: #1c2b36;">
+                    修改头像
+                </div>
+            </div>
+
+            <div class="row" style="margin-top: 15%;">
+                <div class="col-md-4"></div>
+                <div class="col-md-4">
+                    <form method="POST" enctype="multipart/form-data" id="id_UploadAvatarForm">
+                        <span style="font-weight: bolder; font-size: 18px;">本地上传一张正方形的头像：</span>
+
+                        <div style="padding-top: 20px;">
+                            <input type="file" name="img" id="id_img" onchange="UploadFile2();">
+                        </div>
+                        <div style="padding-top: 20px;">
+                            <input style="width: 100px;" type="button" id="id_UploadAvatarBtn" value="上传">
+                        </div>
+                    </form>
+
+                    <!-- 点击上传修改用户头像 -->
+                    <script>
+                        function UploadFile2() {
+                            $('#id_img').find('img').remove();
+                            var fileobj = $("#id_img")[0].files[0];
+                            var form = new FormData();
+                            form.append('img', fileobj);
+                            $.ajax({
+                                type: 'POST',
+                                url: '{% url 'users:change_user_avatar_upload' %}',
+                                data: form,
+                                dataType: 'json',
+                                processData: false,
+                                contentType: false,
+                                beforeSend: function (xhr, settings) {
+                                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                                },
+                                success: function (data) {
+                                    if (data.status == 'success') {
+                                        window.location.reload();
+                                    } else if (data.status == 'failed') {
+                                        window.alert(data.msg);
+                                    }
+                                }
+                            })
+                        }
+                    </script>
+
+                    <form method="POST" id="id_ChoseAvatarForm" style="padding-top: 30px;">
+                        <span style="font-weight: bolder; font-size: 18px;">选择一张系统头像：</span>
+
+                        <div class="chose_pic" style="padding-top: 20px;">
+                            {% for each in for_round %}
+                                <div style="display: inline">
+                                    <input type="radio" value="users/avatar/{{ each }}.png" name="avatar"
+                                           style="display:none">
+
+                                    <img class="img-rounded" src="{{ MEDIA_URL }}users/avatar/{{ each }}.png" width="60"
+                                         height="60" onclick="myFun(this.id)" id="id_ChoseAvatarBtn{{ each }}"
+                                            {% if each|Compare_Picture:request.user.avatar %}
+                                         style="border: 2px solid orangered;"
+                                            {% endif %}>
+                                </div>
+
+                                {% ifequal each 5 %}
+                                    <div></div>
+                                {% endifequal %}
+
+                                <!-- 点击修改用户头像 -->
+                                <script>
+                                    $(function () {
+                                        // 提交表单
+                                        $('#id_ChoseAvatarBtn{{ each }}').on('click', function () {
+                                            $.ajax({
+                                                cache: false,
+                                                type: "POST",
+                                                url: "{% url 'users:change_user_avatar_chose' %}",
+                                                data: $('#id_ChoseAvatarForm').serialize(),
+                                                async: true,
+                                                beforeSend: function (xhr, settings) {
+                                                    xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                                                },
+                                                success: function (data) {
+                                                    if (data.status == 'success') {
+                                                        window.location.reload();
+                                                    } else if (data.status == 'failed') {
+                                                        window.alert(data.msg);
+                                                    }
+                                                }
+                                            });
+                                        });
+                                    })
+                                </script>
+
+                            {% endfor %}
+
+                        </div>
+                    </form>
+
+                </div>
+                <div class="col-md-4"></div>
+            </div>
+        </div>
+    </div>
+{% endblock user_base_body %}
+
+
+{% block base_footer_js %}
+    <!-- 点击修改用户头像 -->
+    <script>
+        function myFun(sId) {
+            var oImg = document.getElementsByTagName('img');
+            for (var i = 0; i < oImg.length; i++) {
+                if (oImg[i].id == sId) {
+                    oImg[i].previousSibling.previousSibling.checked = true;
+                    oImg[i].style.border = '2px solid orangered';
+                } else {
+                    oImg[i].style.border = '2px solid white';
+                }
+            }
+        }
+    </script>
+{% endblock base_footer_js %}

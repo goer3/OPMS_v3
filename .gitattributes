@@ -1,4 +1,2 @@
-*.css linguist-language=python
-*.less linguist-language=python
-*.js linguist-language=python
-*.html linguist-language=python
+# Auto detect text files and perform LF normalization
+* text=auto

@@ -1,0 +1,721 @@
+{% extends 'users/user_base.html' %}
+{% load staticfiles %}
+
+
+{% block base_title %}
+    用户列表
+{% endblock base_title %}
+
+
+{% block base_header_css %}
+    <!-- 弹框详情css -->
+    <style>
+        .popover-title {
+            color: #1c2b36;
+            font-weight: bolder;
+        }
+
+        .popover {
+            background-color: #1c2b36;
+            color: white;
+        }
+    </style>
+
+    <link rel="stylesheet" href="{% static 'plugins/bootstrap_date/bootstrap-select.css' %}" type="text/css">
+{% endblock base_header_css %}
+
+
+{% block base_header_js %}
+    <script src="{% static 'plugins/bootstrap_date/bootstrap-select.js' %}"></script>
+
+    <!-- 下拉选择框 -->
+    <script type="text/javascript">
+        $(window).on('load', function () {
+            $('.selectpicker').selectpicker({
+                'selectedText': 'cat'
+            });
+        })
+    </script>
+{% endblock base_header_js %}
+
+
+{% block base_content %}
+    <div class="app-content">
+        <div class="app-content-body fade-in-up">
+            <div class="padder" style="padding-top: 10px;">
+
+                <div class="col-md-12" style="padding-left: 0; padding-right: 0;">
+                    <div class="panel panel-default" id="body-content">
+                        <div class="panel-heading" style="background-color: #1c2b36;">
+                            <div style="display: block; border-left: 5px solid #fff; padding-left: 10px; font-size: 20px; font-weight: bolder; line-height: 25px;color: #fff;">
+                                用户列表{% ifnotequal keyword '' %}&nbsp;&nbsp;
+                                ："{{ keyword }}" 关键字搜索结果{% endifnotequal %}
+                            </div>
+                        </div>
+
+                        <div class="panel-body" id="table_content">
+                            <!-- 功能 -->
+                            <div style="padding-bottom: 15px;">
+                                {% if request.user.role > 1 %}
+                                    <a class="btn btn-sm btn-default" data-toggle="modal" data-target="#AddUserModal">
+                                        <i class="fa fa-plus"></i> 添加用户
+                                    </a>
+                                {% endif %}
+                                <a class="btn btn-sm {% ifequal user_check 'all' %}btn-dark{% else %}btn-default{% endifequal %}"
+                                   href="?&user_check=all">显示全部</a>
+                                <a class="btn btn-sm {% ifequal user_check 'active' %}btn-dark{% else %}btn-default{% endifequal %}"
+                                   href="?&user_check=active">只看激活</a>
+                                <a class="btn btn-sm {% ifequal user_check 'notactive' %}btn-dark{% else %}btn-default{% endifequal %}"
+                                   href="?&user_check=notactive">只看未激活</a>
+                                <a class="btn btn-sm {% ifequal user_check 'up' %}btn-dark{% else %}btn-default{% endifequal %}"
+                                   href="?&user_check=up">只看启用</a>
+                                <a class="btn btn-sm {% ifequal user_check 'down' %}btn-dark{% else %}btn-default{% endifequal %}"
+                                   href="?&user_check=down">只看停用</a>
+                                <a class="btn btn-sm {% ifequal user_check 'male' %}btn-dark{% else %}btn-default{% endifequal %}"
+                                   href="?&user_check=male">只看男性</a>
+                                <a class="btn btn-sm {% ifequal user_check 'female' %}btn-dark{% else %}btn-default{% endifequal %}"
+                                   href="?&user_check=female">只看女性</a>
+
+                                <form class="navbar-form pull-right" role="search" style="margin-top: 0;">
+                                    <div class="form-group">
+                                        <div class="input-group">
+                                            <input type="text" class="form-control input-sm bg-light no-border rounded"
+                                                   placeholder="关键词查找用户" name="keyword" style="width: 150px;">
+                                            <span class="input-group-btn">
+                                    <button type="submit" class="btn btn-sm bg-auto rounded">
+                                        <i class="fa fa-search"></i>
+                                    </button>
+                                </span>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+
+                            <!-- 列表 -->
+                            <div class="row" style="padding-left: 10px; padding-right: 10px;">
+
+                                {% for each_user in users.object_list %}
+                                    <!-- 管理员以上才能看到停用的用户 -->
+                                    {% if each_user.status == 2 %}
+                                        {% if request.user.role > 1 %}
+                                            <div class="col-sm-3" style="padding-left: 5px; padding-right: 5px;">
+                                                <div class="panel" style="margin-bottom: 30px;">
+                                                    <div class="panel-heading"
+                                                         style="background-color: #1c2b36; color: white;">
+                                                        <span style="font-size: 15px;">{{ each_user.position.department.name }} - {{ each_user.position.name }} - {{ each_user.chinese_name }}</span>
+                                                    </div>
+                                                    <div class="panel-body">
+                                                        <div class="m-t-xs">
+                                                            <div class="col-sm-5">
+                                                                <a href="{% url 'users:other_user_info' each_user.id %}"><img
+                                                                        class="img-circle"
+                                                                        style="width: 100px;height: 100px;"
+                                                                        src="{{ MEDIA_URL }}{{ each_user.avatar }}"></a>
+                                                            </div>
+
+                                                            <div class="col-sm-7">
+                                                                <ul class="list-unstyled ">
+                                                                    <li style="margin-bottom: 10px;">
+                                                                        <i class="glyphicon glyphicon-map-marker"
+                                                                           style="color: #003366"></i>
+                                                                        <button style="color: #1c2b36; border: none; background:none"
+                                                                                data-container="body"
+                                                                                data-toggle="popover"
+                                                                                data-trigger="hover"
+                                                                                data-placement="bottom"
+                                                                                data-content="{{ each_user.address }}">{{ each_user.address|slice:'12' }}...
+                                                                        </button>
+                                                                    </li>
+
+                                                                    <li style="margin-bottom: 10px;">
+                                                                        <i class="glyphicon glyphicon-phone"
+                                                                           style="color: #003366"></i>
+                                                                        <button style="color: #1c2b36; border: none; background:none">{{ each_user.mobile }}</button>
+                                                                    </li>
+
+                                                                    <li style="margin-bottom: 10px;">
+                                                                        <i class="fa fa-envelope-o"
+                                                                           style="color: #003366"></i>
+                                                                        <button style="color: #1c2b36; border: none; background:none">{{ each_user.email }}</button>
+                                                                    </li>
+
+                                                                    <li>
+                                                                        <i class="glyphicon glyphicon-stats"
+                                                                           style="color: #003366"></i>
+                                                                        <button style="border: none; background:none">
+                                                                            <span style="color: orangered;">停用 </span>
+                                                                            {% if each_user.is_active %}
+                                                                                | 激活
+                                                                            {% else %} |
+                                                                                <span style="color: orangered;">未激活 </span>
+                                                                            {% endif %}
+                                                                            {% if request.user.role >= each_user.role %}
+                                                                                |
+                                                                                <a href="" data-toggle="modal"
+                                                                                   data-target="#EditUserModal{{ each_user.id }}">
+                                                                                    管理 </a>
+                                                                            {% endif %}
+                                                                        </button>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        <div class="col-sm-3" style="padding-left: 5px; padding-right: 5px;">
+                                            <div class="panel" style="margin-bottom: 30px;">
+                                                <div class="panel-heading"
+                                                     style="background-color: #1c2b36; color: white;">
+                                                    <span style="font-size: 15px;">{{ each_user.position.department.name }} - {{ each_user.position.name }} - {{ each_user.chinese_name }}</span>
+                                                </div>
+                                                <div class="panel-body">
+                                                    <div class="m-t-xs">
+                                                        <div class="col-sm-5">
+                                                            <a href="{% url 'users:other_user_info' each_user.id %}">
+                                                                <img class="img-circle"
+                                                                     style="width: 100px;height: 100px;"
+                                                                     src="{{ MEDIA_URL }}{{ each_user.avatar }}">
+                                                            </a>
+                                                        </div>
+
+                                                        <div class="col-sm-7">
+                                                            <ul class="list-unstyled ">
+                                                                <li style="margin-bottom: 10px;">
+                                                                    <i class="glyphicon glyphicon-map-marker"
+                                                                       style="color: #003366"></i>
+                                                                    <button style="color: #1c2b36; border: none; background:none"
+                                                                            data-container="body" data-toggle="popover"
+                                                                            data-trigger="hover" data-placement="bottom"
+                                                                            data-content="{{ each_user.address }}">{{ each_user.address|slice:'12' }}...
+                                                                    </button>
+                                                                </li>
+
+                                                                <li style="margin-bottom: 10px;">
+                                                                    <i class="glyphicon glyphicon-phone"
+                                                                       style="color: #003366"></i>
+                                                                    <button style="color: #1c2b36; border: none; background:none">{{ each_user.mobile }}</button>
+                                                                </li>
+
+                                                                <li style="margin-bottom: 10px;">
+                                                                    <i class="fa fa-envelope-o"
+                                                                       style="color: #003366"></i>
+                                                                    <button style="color: #1c2b36; border: none; background:none">{{ each_user.email }}</button>
+                                                                </li>
+
+                                                                <li>
+                                                                    <i class="glyphicon glyphicon-stats"
+                                                                       style="color: #003366"></i>
+                                                                    <button style="color: #1c2b36; border: none; background:none">
+                                                                        启用
+                                                                        {% if each_user.is_active %} | 激活 {% else %} |
+                                                                            <span style="color: orangered;">未激活 </span> {% endif %}
+                                                                        {% if request.user.role  > each_user.role %} |
+                                                                            <a href="" data-toggle="modal"
+                                                                               data-target="#EditUserModal{{ each_user.id }}">
+                                                                                管理 </a>
+                                                                        {% endif %}
+                                                                    </button>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if each_user.role <= request.user.role %}
+
+                                    {% endif %}
+                                {% endfor %}
+
+                            </div>
+                        </div>
+
+                        <!-- 页码 -->
+                        <div class="panel-footer" style="padding-top: 0; padding-bottom: 0;">
+                            <div class="text-center">
+                                <ul class="pagination" style="margin-top: 10px; margin-bottom: 10px;">
+
+                                    <!-- 上一页 -->
+                                    {% if users.has_previous %}
+                                        <li><a href="?{{ users.previous_page_number.querystring }}">上一页<span
+                                                class="sr-only"></span></a></li>
+                                        <li><a href="?{{ users.previous_page_number.querystring }}">&laquo;<span
+                                                class="sr-only"></span></a></li>
+                                    {% endif %}
+
+                                    <!-- 页码 -->
+                                    {% for page in users.pages %}
+                                        {% if page %}
+                                            <!-- 当前页 -->
+                                            {% ifequal page users.number %}
+                                                <li class="active"><a href="?page={{ page }}">{{ page }}<span
+                                                        class="sr-only">(current)</span></a></li>
+                                                <!-- 其它页 -->
+                                            {% else %}
+                                                <li><a href="?page={{ page }}">{{ page }}<span
+                                                        class="sr-only"></span></a></li>
+                                            {% endifequal %}
+                                            <!-- 省略页 -->
+                                        {% else %}
+                                            <li><a href="">...<span class="sr-only"></span></a></li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    <!-- 下一页 -->
+                                    {% if users.has_next %}
+                                        <li><a href="?{{ users.next_page_number.querystring }}">&raquo;<span
+                                                class="sr-only"></span></a></li>
+                                        <li><a href="?{{ users.next_page_number.querystring }}">下一页<span
+                                                class="sr-only"></span></a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock base_content %}
+
+
+{% block base_footer_html %}
+    <div class="modal inmodal" id="AddUserModal" tabindex="-1" role="dialog" aria-hidden="true"
+         data-backdrop="static">
+        <div class="modal-dialog" style="width: 450px;">
+            <div class="modal-content" style="margin-top: 100px;">
+
+                <div class="modal-header"
+                     style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                    <button type="button" class="close" data-dismiss="modal">
+                        <i class="icon-close" style="font-size: 18px;"></i>
+                    </button>
+                    <h4 class="modal-title">添加用户</h4>
+                </div>
+
+                <form method="post" id="id_AddUserForm">
+                    <div class="modal-body" style="height: 470px;">
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">用户名：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="用户名"
+                                       maxlength="20" name="username" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">中文名：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="中文名"
+                                       maxlength="20" name="chinese_name" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">邮箱：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="email" class="form-control" placeholder="邮箱"
+                                       maxlength="40" name="email" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">手机号：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="text" class="form-control" placeholder="手机号"
+                                       maxlength="20" name="mobile" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">性别：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <select name="gender" class="selectpicker form-control" style="display: none;">
+                                    <option value="male" selected>男</option>
+                                    <option value="female">女</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">职位：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <select id="id_select" name="position" class="selectpicker bla bli form-control"
+                                        data-live-search="true" style="display: none;">
+                                    {% for each_position in positions %}
+                                        <option value="{{ each_position.id }}">{{ each_position.department.company.name }}
+                                            - {{ each_position.department.name }} - {{ each_position.name }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">用户权限：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <select name="role" class="selectpicker form-control" style="display: none;">
+                                    <option value="1" selected>普通用户</option>
+                                    <option value="2">管理员</option>
+                                    {% if request.user.role > 2 %}
+                                        <option value="3">超级管理员</option>
+                                    {% endif %}
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">是否启用：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <select name="status" class="selectpicker form-control" style="display: none;">
+                                    <option value="1" selected>启用</option>
+                                    <option value="2">停用</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">密码：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="password" class="form-control" placeholder="密码"
+                                       maxlength="20" name="password" required="">
+                            </div>
+                        </div>
+
+                        <div class="form-group" style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                            <div class="col-md-3">
+                                <span style="font-size: 14px;">重复密码：</span>
+                            </div>
+                            <div class="col-md-9" style="padding: 0;">
+                                <input type="password" class="form-control" placeholder="重复密码"
+                                       maxlength="20" name="re_password" required="">
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+                <div class="modal-footer" style="padding-top: 10px; padding-bottom: 10px;">
+                    <a class="btn btn-sm btn-default" data-dismiss="modal">取消</a>
+                    <a class="btn btn-sm btn-default" id="id_AddUserBtn">添加</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- 编辑用户 -->
+    {% for each_user in users.object_list %}
+        {% if each_user.role < request.user.role %}
+            <div class="modal inmodal" id="EditUserModal{{ each_user.id }}"
+                 tabindex="-1" role="dialog" aria-hidden="true"
+                 data-backdrop="static">
+                <div class="modal-dialog" style="width: 450px;">
+                    <div class="modal-content"
+                         style="margin-top: 100px;">
+
+                        <div class="modal-header"
+                             style="background-color: #1c2b36; color: white;padding-top: 10px; padding-bottom: 10px;">
+                            <button type="button" class="close"
+                                    data-dismiss="modal">
+                                <i class="icon-close"
+                                   style="font-size: 18px;"></i>
+                            </button>
+                            <h4 class="modal-title">修改用户</h4>
+                        </div>
+
+                        <form method="post" id="id_EditUserForm{{ each_user.id }}">
+                            <input type="hidden" value="{{ each_user.id }}" name="uid">
+
+                            <div class="modal-body"
+                                 style="height: 470px;">
+
+                                <div class="form-group"
+                                     style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                    <div class="col-md-3">
+                                        <span style="font-size: 14px;">用户名：</span>
+                                    </div>
+                                    <div class="col-md-9"
+                                         style="padding: 0;">
+                                        <input type="text"
+                                               class="form-control"
+                                               placeholder="用户名"
+                                               maxlength="20"
+                                               name="username"
+                                               required="" value="{{ each_user.username }}">
+                                    </div>
+                                </div>
+
+                                <div class="form-group"
+                                     style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                    <div class="col-md-3">
+                                        <span style="font-size: 14px;">中文名：</span>
+                                    </div>
+                                    <div class="col-md-9"
+                                         style="padding: 0;">
+                                        <input type="text"
+                                               class="form-control"
+                                               placeholder="中文名"
+                                               maxlength="20"
+                                               name="chinese_name"
+                                               required="" value="{{ each_user.chinese_name }}">
+                                    </div>
+                                </div>
+
+                                <div class="form-group"
+                                     style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                    <div class="col-md-3">
+                                        <span style="font-size: 14px;">邮箱：</span>
+                                    </div>
+                                    <div class="col-md-9"
+                                         style="padding: 0;">
+                                        <input type="email"
+                                               class="form-control"
+                                               placeholder="邮箱"
+                                               maxlength="40"
+                                               name="email"
+                                               required="" value="{{ each_user.email }}">
+                                    </div>
+                                </div>
+
+                                <div class="form-group"
+                                     style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                    <div class="col-md-3">
+                                        <span style="font-size: 14px;">手机号：</span>
+                                    </div>
+                                    <div class="col-md-9"
+                                         style="padding: 0;">
+                                        <input type="text"
+                                               class="form-control"
+                                               placeholder="手机号"
+                                               maxlength="20"
+                                               name="mobile"
+                                               required="" value="{{ each_user.mobile }}">
+                                    </div>
+                                </div>
+
+                                <div class="form-group"
+                                     style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                    <div class="col-md-3">
+                                        <span style="font-size: 14px;">性别：</span>
+                                    </div>
+                                    <div class="col-md-9"
+                                         style="padding: 0;">
+                                        <select name="gender"
+                                                class="selectpicker form-control"
+                                                style="display: none;">
+                                            <option value="male" {% ifequal each_user.gender 'male' %}
+                                                    selected {% endifequal %}>男
+                                            </option>
+                                            <option value="female" {% ifequal each_user.gender 'female' %}
+                                                    selected {% endifequal %}>女
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"
+                                     style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                    <div class="col-md-3">
+                                        <span style="font-size: 14px;">职位：</span>
+                                    </div>
+                                    <div class="col-md-9"
+                                         style="padding: 0;">
+                                        <select id="id_select"
+                                                name="position"
+                                                class="selectpicker bla bli form-control"
+                                                data-live-search="true"
+                                                style="display: none;">
+                                            {% for each_position in positions %}
+                                                <option value="{{ each_position.id }}"
+                                                        {% ifequal each_user.position.id each_position.id %}
+                                                        selected {% endifequal %}>{{ each_position.department.company.name }}
+                                                    - {{ each_position.department.name }}
+                                                    - {{ each_position.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"
+                                     style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                    <div class="col-md-3">
+                                        <span style="font-size: 14px;">用户权限：</span>
+                                    </div>
+                                    <div class="col-md-9"
+                                         style="padding: 0;">
+                                        <select name="role"
+                                                class="selectpicker form-control"
+                                                style="display: none;">
+                                            <option value="1" {% ifequal each_user.role 1 %} selected {% endifequal %}>
+                                                普通用户
+                                            </option>
+                                            <option value="2" {% ifequal each_user.role 2 %} selected {% endifequal %}>
+                                                管理员
+                                            </option>
+                                            {% if request.user.role > 2 %}
+                                                <option value="3" {% ifequal each_user.role 3 %}
+                                                        selected {% endifequal %}>超级管理员
+                                                </option>
+                                            {% endif %}
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"
+                                     style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                    <div class="col-md-3">
+                                        <span style="font-size: 14px;">是否启用：</span>
+                                    </div>
+                                    <div class="col-md-9"
+                                         style="padding: 0;">
+                                        <select name="status"
+                                                class="selectpicker form-control"
+                                                style="display: none;">
+                                            <option value="1" {% ifequal each_user.status 1 %}
+                                                    selected {% endifequal %}>启用
+                                            </option>
+                                            <option value="2" {% ifequal each_user.status 2 %}
+                                                    selected {% endifequal %}>停用
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group"
+                                     style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                    <div class="col-md-3">
+                                        <span style="font-size: 14px;">密码：</span>
+                                    </div>
+                                    <div class="col-md-9"
+                                         style="padding: 0;">
+                                        <input type="password"
+                                               class="form-control"
+                                               placeholder="密码"
+                                               maxlength="20"
+                                               name="password">
+                                    </div>
+                                </div>
+
+                                <div class="form-group"
+                                     style="vertical-align: middle;line-height: 34px;padding-bottom: 30px;">
+                                    <div class="col-md-3">
+                                        <span style="font-size: 14px;">重复密码：</span>
+                                    </div>
+                                    <div class="col-md-9"
+                                         style="padding: 0;">
+                                        <input type="password"
+                                               class="form-control"
+                                               placeholder="重复密码"
+                                               maxlength="20"
+                                               name="re_password">
+                                    </div>
+                                </div>
+
+                            </div>
+                        </form>
+
+                        <div class="modal-footer" style="padding-top: 10px; padding-bottom: 10px;">
+                            <a class="btn btn-sm btn-default"
+                               data-dismiss="modal">取消</a>
+                            <a class="btn btn-sm btn-default"
+                               id="id_EditUserBtn{{ each_user.id }}">修改</a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- 修改用户 -->
+            <script>
+                $(function () {
+                    // 提交表单
+                    $('#id_EditUserBtn{{ each_user.id }}').on('click', function () {
+                        $.ajax({
+                            cache: false,
+                            type: "POST",
+                            url: "{% url 'users:edit_user' %}",
+                            data: $('#id_EditUserForm{{ each_user.id }}').serialize(),
+                            async: true,
+                            beforeSend: function (xhr, settings) {
+                                xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                            },
+                            success: function (data) {
+                                if (data.status == 'success') {
+                                    window.alert(data.msg);
+                                    window.location.reload();
+                                } else if (data.status == 'failed') {
+                                    window.alert(data.msg);
+                                }
+                            }
+                        });
+                    });
+                })
+            </script>
+        {% endif %}
+    {% endfor %}
+
+
+{% endblock base_footer_html %}
+
+
+{% block base_footer_js %}
+    <!-- 记录详情 -->
+    <script>
+        $(function () {
+            $("[data-toggle='popover']").popover();
+        });
+    </script>
+
+
+    <!-- 添加用户 -->
+    <script>
+        $(function () {
+            // 提交表单
+            $('#id_AddUserBtn').on('click', function () {
+                $.ajax({
+                    cache: false,
+                    type: "POST",
+                    url: "{% url 'users:add_user' %}",
+                    data: $('#id_AddUserForm').serialize(),
+                    async: true,
+                    beforeSend: function (xhr, settings) {
+                        xhr.setRequestHeader("X-CSRFToken", "{{ csrf_token }}");
+                    },
+                    success: function (data) {
+                        if (data.status == 'success') {
+                            window.alert(data.msg);
+                            window.location.reload();
+                        } else if (data.status == 'failed') {
+                            window.alert(data.msg);
+                        }
+                    }
+                });
+            });
+        })
+    </script>
+{% endblock base_footer_js %}
