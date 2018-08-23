@@ -128,13 +128,13 @@ mkdir -p /opt/opms_website
     * WEBSSH_PORT：不需要修改，如果真的要改，需要修改 extra_apps/webssh/main.py 中的端口，改为一致
 
  
-#### 4.高德地图和城市：
+* 高德地图和城市：
 
-* GAODE_API_KEY：需要去高德地址开发者中心创建一个 KEY，很容易，这里用于首页的天气功能
-* CITY_ID：默认的城市 ID，在内网访问的时候提供城市天气支持
+    * GAODE_API_KEY：需要去高德地址开发者中心创建一个 KEY，很容易，这里用于首页的天气功能
+    * CITY_ID：默认的城市 ID，在内网访问的时候提供城市天气支持
 
 
-#### 5.开发者邮箱 DEVELPER_EMAIL_ADDRESS，默认为我得，首页反馈功能发送的消息最终发送给谁
+* 开发者邮箱 DEVELPER_EMAIL_ADDRESS，默认为我得，首页反馈功能发送的消息最终发送给谁
 
 
 #### 安装依赖
