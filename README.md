@@ -23,8 +23,6 @@
 
 ![enter description here](https://github.com/PythonTra1nee/OPMS_v3/blob/master/display/userinfo.jpg?raw=true)
 
-![enter description here](https://github.com/PythonTra1nee/OPMS_v3/blob/master/display/useravatar.jpg?raw=true)
-
 
 【2】主机管理：
 
@@ -52,16 +50,16 @@
 #### 系统 CentOS 6 或者 7
 
 #### 下载 Python
-https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz
+···https://www.python.org/ftp/python/3.6.2/Python-3.6.2.tar.xz···
 
 #### 放到服务器上面编译安装
-yum -y install zlib-devel bzip2-devel wget openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gcc make
+···yum -y install zlib-devel bzip2-devel wget openssl-devel ncurses-devel sqlite-devel readline-devel tk-devel gcc make
 cd /usr/local/src
 xz -d Python-3.6.2.tar.xz
 tar -xf Python-3.6.2.tar
 cd Python-3.6.2
 ./configure --prefix=/usr/local/python-36 --enable-shared CFLAGS=-fPIC
-make && make install
+make && make install···
 
 #### 添加环境变量
 echo 'export PATH=$PATH:/usr/local/python-36/bin' >> /etc/profile
