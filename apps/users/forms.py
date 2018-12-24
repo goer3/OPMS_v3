@@ -2,7 +2,7 @@
 # Django 模块
 ######################################
 from django import forms
-
+from captcha.fields import CaptchaField
 
 ######################################
 # 自定义模块
@@ -16,6 +16,7 @@ from .models import *
 class UerLoginForm(forms.Form):
     username = forms.CharField(max_length=20, min_length=4, required=True)
     password = forms.CharField(max_length=20, min_length=6, required=True)
+    captcha = CaptchaField(error_messages={'invalid': '验证码错误!'})
 
 
 ######################################

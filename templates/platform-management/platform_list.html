@@ -44,23 +44,18 @@
                                         </thead>
                                         <tbody>
 
-                                        {% for each_platform in platforms %}
+                                        {% for each_platform in platforms.object_list %}
                                             <tr class="gradeX odd" role="row">
-                                                <td class="text-center"
-                                                    style="vertical-align:middle; padding-top: 2px; padding-bottom: 2px;">
-                                                    <img
-                                                            src="{{ MEDIA_URL }}{{ each_platform.logo }}"
-                                                            class="img-circle" style="width: 25px; height: 25px;">
+                                                <td class="text-center" style="vertical-align:middle; padding-top: 2px; padding-bottom: 2px;">
+                                                    <img src="{{ MEDIA_URL }}{{ each_platform.logo }}" class="img-circle" style="width: 25px; height: 25px;">
                                                 </td>
-                                                <td class="text-center"
-                                                    style="vertical-align:middle;">{{ each_platform.name }}
+                                                <td class="text-center" style="vertical-align:middle;">{{ each_platform.name }}
                                                 </td>
-                                                <td class="text-center"
-                                                    style="vertical-align:middle;">{{ each_platform.url }}
+                                                <td class="text-center" style="vertical-align:middle;"><a href="{{ each_platform.url }}" target="_blank">{{ each_platform.url }}</a>
                                                 </td>
 
-
-                                                {% Get_PlatForm_Info request.user.id each_platform.id as infos %}
+                                                {#  {% Get_PlatForm_Info request.user.id each_platform.id as infos %}#}
+                                                {% Get_Common_PlatForm_Info each_platform.id as infos %}
 
                                                 <td class="text-center"
                                                     style="vertical-align:middle;">
@@ -126,6 +121,47 @@
                             </div>
 
                         </div>
+
+                        <!-- 页码 -->
+                        <div class="panel-footer" style="padding-top: 0; padding-bottom: 0;">
+                            <div class="text-center">
+                                <ul class="pagination" style="margin-top: 10px; margin-bottom: 10px;">
+
+                                    <!-- 上一页 -->
+                                    {% if platforms.has_previous %}
+                                        <li><a href="?{{ platforms.previous_page_number.querystring }}">上一页<span
+                                                class="sr-only"></span></a></li>
+                                        <li><a href="?{{ platforms.previous_page_number.querystring }}">&laquo;<span
+                                                class="sr-only"></span></a></li>
+                                    {% endif %}
+
+                                    <!-- 页码 -->
+                                    {% for page in platforms.pages %}
+                                        {% if page %}
+                                            <!-- 当前页 -->
+                                            {% ifequal page platforms.number %}
+                                                <li class="active"><a href="?page={{ page }}">{{ page }}<span
+                                                        class="sr-only">(current)</span></a></li>
+                                                <!-- 其它页 -->
+                                            {% else %}
+                                                <li><a href="?page={{ page }}">{{ page }}<span
+                                                        class="sr-only"></span></a></li>
+                                            {% endifequal %}
+                                            <!-- 省略页 -->
+                                        {% else %}
+                                            <li><a href="">...<span class="sr-only"></span></a></li>
+                                        {% endif %}
+                                    {% endfor %}
+
+                                    <!-- 下一页 -->
+                                    {% if platforms.has_next %}
+                                        <li><a href="?{{ platforms.next_page_number.querystring }}">&raquo;<span class="sr-only"></span></a></li>
+                                        <li><a href="?{{ platforms.next_page_number.querystring }}">下一页<span
+                                                class="sr-only"></span></a></li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -134,7 +170,7 @@
 {% endblock base_content %}
 
 {% block base_footer_html %}
-    {% for each_platform in platforms %}
+    {% for each_platform in platforms.object_list %}
         <div class="modal inmodal" id="EditPlatformUserModal{{ each_platform.id }}" tabindex="-1" role="dialog"
              aria-hidden="true"
              data-backdrop="static">
@@ -153,7 +189,7 @@
 
                             <input type="hidden" name="platform_id" value="{{ each_platform.id }}">
 
-                            {% Get_PlatForm_Info request.user.id each_platform.id as infos %}
+                            {% Get_Common_PlatForm_Info each_platform.id as infos %}
 
                             <input type="hidden" name="pu_id" value="{% if infos %}{% for each in infos %}{{ each.id }}{% endfor %}{% else %}{% endif %}">
 
