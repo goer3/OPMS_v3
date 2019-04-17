@@ -41,8 +41,14 @@
 
                         <!-- 验证码 -->
                         <div class="form-group" style="line-height: 34px; height: 34px;">
-                            {{ user_login_form.captcha }}
-
+                            <div class="input-group col-xs-12">
+                                <input id="id_captcha_1" class="form-control user_captcha" placeholder="请输入验证码"
+                                       autocomplete="off" autocapitalize="off" spellcheck="false" name="captcha_1"
+                                       type="text"
+                                       style="width: auto;" required="">
+                                <img class="captcha" alt="captcha" src="{{ image_url }}">
+                                <input id="id_captcha_0" name="captcha_0" value="{{ hashkey }}" type="hidden">
+                            </div>
                             <!-- 刷新验证码 -->
                             <script>
                                 function refresh_captcha() {

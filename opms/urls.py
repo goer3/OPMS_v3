@@ -25,6 +25,8 @@ urlpatterns = [
     # media 配置
     url(r'^media/(?P<path>.*)$', serve, {'document_root': MEDIA_ROOT}),
 
+    #验证码
+    url(r'^captcha/', include('captcha.urls')),
     # users
     path('', include('users.urls')),
 
