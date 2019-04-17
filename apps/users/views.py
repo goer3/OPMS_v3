@@ -11,6 +11,8 @@ from django.db.models import Q
 from django.urls import reverse
 from django.core.mail import send_mail, EmailMultiAlternatives
 from django.contrib.sessions.models import Session
+from captcha.models import CaptchaStore
+from captcha.helpers import captcha_image_url
 
 ######################################
 # 第三方模块
@@ -141,11 +143,13 @@ class IndexView(LoginStatusCheck, View):
 ######################################
 class LoginView(View):
     def get(self, request):
+        hashkey = CaptchaStore.generate_key()
+        image_url = captcha_image_url(hashkey)
         user_login_form = UerLoginForm()
         context = {
-            'user_login_form': user_login_form,
+            'user_login_form': user_login_form
         }
-        return render(request, 'users/login/login.html', context=context)
+        return render(request, 'users/login/login.html', locals())
 
     def post(self, request):
         user_login_form = UerLoginForm(request.POST)
