@@ -63,6 +63,8 @@ INSTALLED_APPS = [
     'operation_record',
     # 线上管理
     'online_management',
+    # captcha
+    'captcha',
 ]
 
 
