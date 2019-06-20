@@ -16,7 +16,7 @@ from .models import *
 class AddHostInfoForm(forms.Form):
     in_ip = forms.GenericIPAddressField(required=True)
     hostname = forms.CharField(min_length=2, max_length=20, required=True)
-    cpu = forms.CharField(min_length=5, max_length=50, required=True)
+    cpu = forms.CharField(min_length=1, max_length=50, required=True)
     disk = forms.IntegerField(required=True)
     memory = forms.IntegerField(required=True)
     network = forms.IntegerField(required=True)
