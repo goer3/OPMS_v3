@@ -10,7 +10,7 @@ from django.urls import reverse
 ######################################
 # 第三方模块
 ######################################
-from pure_pagination import PageNotAnInteger, Paginator, EmptyPage
+from pure_pagination import PageNotAnInteger, Paginator
 
 ######################################
 # 系统模块
@@ -40,6 +40,18 @@ class CompanyPlatformListView(LoginStatusCheck, View):
 
         platforms = PlatformInfo.objects.filter(belong=1).filter(is_public=True)
 
+        # 判断页码
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+
+        # 对取到的数据进行分页，记得定义每页的数量
+        p = Paginator(platforms, 17, request=request)
+
+        # 分页处理后的 QuerySet
+        platforms = p.page(page)
+
         context = {
             'web_chose_left_1': web_chose_left_1,
             'web_chose_left_2': web_chose_left_2,
@@ -64,6 +76,18 @@ class OpsPlatformListView(LoginStatusCheck, View):
 
         platforms = PlatformInfo.objects.filter(belong=2).filter(is_public=True)
 
+        # 判断页码
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+
+        # 对取到的数据进行分页，记得定义每页的数量
+        p = Paginator(platforms, 17, request=request)
+
+        # 分页处理后的 QuerySet
+        platforms = p.page(page)
+
         context = {
             'web_chose_left_1': web_chose_left_1,
             'web_chose_left_2': web_chose_left_2,
@@ -75,7 +99,7 @@ class OpsPlatformListView(LoginStatusCheck, View):
 
 
 ######################################
-# 添加平台用户列表
+# 编辑平台用户列表
 ######################################
 class EditPlatformUserView(LoginStatusCheck, View):
     def post(self, request):
@@ -115,6 +139,11 @@ class OtherPlatformListView(LoginStatusCheck, View):
         title = '其它平台'
 
         platforms = PlatformInfo.objects.filter(belong=3).filter(add_user=request.user)
+
+        # 搜索
+        keyword = request.GET.get('keyword', '')
+        if keyword != '':
+            platforms = platforms.filter(Q(name__icontains=keyword) | Q(url__icontains=keyword))
 
         platform_nums = platforms.count()
 
@@ -162,23 +191,3 @@ class AddOtherPlatformView(LoginStatusCheck, View):
                 return HttpResponse('{"status":"failed", "msg":"填写错误！"}', content_type='application/json')
         except Exception as e:
             return HttpResponse('{"status":"failed", "msg":"未知错误！"}', content_type='application/json')
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

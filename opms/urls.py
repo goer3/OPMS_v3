@@ -45,6 +45,8 @@ urlpatterns = [
 
     # online
     path('online/', include('online_management.urls')),
+    # captcha
+    path("captcha/", include('captcha.urls')),
 ]
 
 

@@ -22,7 +22,12 @@
                     <form class="m-t" role="form" method="post" action="{% url 'users:login' %}">
                         {% csrf_token %}
 
-                        <p style="color: red;">{{ msg }}</p>
+                        <!-- 错误提示 -->
+                        {% if msg %}
+                            <p style="color: red; margin-top: 10px;">{{ msg }}</p>
+                        {% else %}
+                            <p style="color: red; margin-top: 10px;">{{ user_login_form.errors.captcha|cut:'<ul class="errorlist"><li>' }}</p>
+                        {% endif %}
 
                         <!-- 用户名或者邮箱 -->
                         <div class="form-group">
@@ -35,27 +40,22 @@
                         </div>
 
                         <!-- 验证码 -->
-                        <!--<div>-->
-                        <!--<div class="row">-->
-                        <!--<div class="col-sm-6">-->
-                        <!--<input autocomplete="off" id="id_captcha_1" class="form-control" name="captcha_1" placeholder="验证码" type="text">-->
-                        <!--</div>-->
-                        <!--</div>-->
-                        <!--<br>-->
+                        <div class="form-group" style="line-height: 34px; height: 34px;">
+                            {{ user_login_form.captcha }}
 
-                        <!--&lt;!&ndash; 刷新验证码 &ndash;&gt;-->
-                        <!--<script>-->
-                        <!--function refresh_captcha() {-->
-                        <!--$.getJSON("/captcha/refresh/",-->
-                        <!--function (result) {-->
-                        <!--$('.captcha').attr('src', result['image_url']);-->
-                        <!--$('#id_captcha_0').val(result['key'])-->
-                        <!--})-->
-                        <!--}-->
+                            <!-- 刷新验证码 -->
+                            <script>
+                                function refresh_captcha() {
+                                    $.getJSON("/captcha/refresh/",
+                                        function (result) {
+                                            $('.captcha').attr('src', result['image_url']);
+                                            $('#id_captcha_0').val(result['key'])
+                                        })
+                                }
 
-                        <!--$('.captcha').click(refresh_captcha)-->
-                        <!--</script>-->
-                        <!--</div>-->
+                                $('.captcha').click(refresh_captcha)
+                            </script>
+                        </div>
 
                         <!-- 登录按钮 -->
                         <button type="submit" class="btn bg-black block full-width m-b" style="color: white">登录</button>
@@ -69,4 +69,12 @@
         </div>
     </div>
 {% endblock login_base_body %}
+
+{% block login_base_footerjs %}
+    <script>
+        document.getElementById("id_captcha_1").style.width = '60%';
+        document.getElementById("id_captcha_1").className = 'form-control pull-right';
+        document.getElementById("id_captcha_1").setAttribute("placeholder", "验证码");
+    </script>
+{% endblock login_base_footerjs %}
 

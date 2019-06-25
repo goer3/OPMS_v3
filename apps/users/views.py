@@ -141,7 +141,10 @@ class IndexView(LoginStatusCheck, View):
 ######################################
 class LoginView(View):
     def get(self, request):
-        context = {}
+        user_login_form = UerLoginForm()
+        context = {
+            'user_login_form': user_login_form,
+        }
         return render(request, 'users/login/login.html', context=context)
 
     def post(self, request):
@@ -207,9 +210,9 @@ class LoginView(View):
             }
             return render(request, 'users/login/login.html', context=context)
         else:
-            msg = '用户账户或密码不满足长度要求！'
+            # msg = '用户账户或密码不满足长度要求！'
             context = {
-                'msg': msg,
+                # 'msg': msg,
                 'user_login_form': user_login_form,
             }
             return render(request, 'users/login/login.html', context=context)

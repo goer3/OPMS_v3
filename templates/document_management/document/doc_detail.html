@@ -217,13 +217,7 @@
                             <div class="col-md-11" style="padding: 0;">
                                 <input type="text" class="form-control" placeholder="文档标签（多个使用英文逗号隔开）" maxlength="50"
                                        name="tags" required=""
-                                       value="
-
-
-
-
-
-                                               {% for each in doc_info.tags.all %}{% if forloop.counter == 1 %}{{ each.name }}{% else %},{{ each.name }}{% endif %}{% endfor %}">
+                                       value="{% for each in doc_info.tags.all %}{% if forloop.counter == 1 %}{{ each.name }}{% else %},{{ each.name }}{% endif %}{% endfor %}">
                             </div>
                         </div>
 
