@@ -6,7 +6,7 @@ Django==2.0.6
 django-pure-pagination==0.3.0
 idna==2.7
 paramiko==2.4.1
-Pillow==5.1.0
+Pillow==6.2.0
 pyasn1==0.4.3
 pycparser==2.18
 PyMySQL==0.8.1
