@@ -5,7 +5,7 @@ cryptography==2.3
 Django==2.0.6
 django-pure-pagination==0.3.0
 idna==2.7
-paramiko==2.4.1
+paramiko==2.10.1
 Pillow==5.1.0
 pyasn1==0.4.3
 pycparser==2.18
